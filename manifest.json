@@ -1,0 +1,15 @@
+{
+  "manifestVersion": 2,
+  "id": "ask-choice",
+  "name": "选项提问",
+  "version": "1.0.0",
+  "entry": "index.js",
+  "icon": "assets/icon.svg",
+  "description": "让 Agent 在需要你拿主意时，把几个选项直接列在输入框上方：点一个就行，也能自己写一个答案。",
+  "minAppVersion": "0.1013.0",
+  "capabilities": [
+    "app/tools.expose-to-model",
+    "app/input.panels"
+  ],
+  "contributes": {}
+}

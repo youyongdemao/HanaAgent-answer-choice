@@ -1,0 +1,144 @@
+/* 输入框上方的选择页：宿主不画外框，容器由这一层自己撑 */
+
+html,
+body {
+  margin: 0;
+}
+
+/* 面板 iframe 自己铺底色：宿主不会替我们填背景，少了这一层就是浅字压白底 */
+body {
+  background: var(--bg, #f7f7f5);
+  color: var(--text, #1b1f23);
+  min-height: 100%;
+}
+
+.ac {
+  padding: 8px 12px 12px;
+  font: 400 13px/1.55 var(--font-ui, system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif);
+  color: var(--text);
+}
+
+.ac-waiting {
+  margin: 0;
+  padding: 10px 2px;
+  color: var(--text-light, var(--text));
+  opacity: .7;
+  font-size: 12px;
+}
+
+.ac-box {
+  max-width: 760px;
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  border-radius: var(--r-md, 12px);
+  background: color-mix(in srgb, var(--bg-card, #fff) 72%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
+}
+
+.ac-question {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+/* 选项：窄的时候自动变一列 */
+.ac-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.ac-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  appearance: none;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-card, #fff) 46%, transparent);
+  color: var(--text);
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: transform .12s ease, border-color .16s, background .16s, box-shadow .18s;
+}
+
+.ac-opt:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 3px 14px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.ac-opt:active {
+  transform: scale(.98);
+}
+
+.ac-opt.is-on {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.ac-mark {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.ac-opt.is-on .ac-mark {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.ac-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ac-custom-row {
+  display: flex;
+}
+
+.ac-custom {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--text) 3.5%, transparent);
+  color: var(--text);
+  padding: 8px 11px;
+  font: inherit;
+  font-size: 12.5px;
+  transition: border-color .16s, box-shadow .16s;
+}
+
+.ac-custom:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.ac-custom::placeholder {
+  color: var(--text-light, var(--text));
+  opacity: .65;
+}
+
+.ac-foot {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-light, var(--text));
+  opacity: .72;
+}
