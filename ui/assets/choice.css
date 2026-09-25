@@ -1,19 +1,22 @@
-/* 输入框上方的选择页：宿主不画外框，容器由这一层自己撑 */
+/* 输入框上方的选择面板：确认按钮由页面自己画，顶栏整条可点，用来收起 / 展开
+   挂载位：app/input.panels。高度策略：展开时由 choice.js 量好内容高度上报，
+   收起时交给宿主的 collapsedHeight（COLLAPSED_H），不用管内容。 */
 
 html,
 body {
   margin: 0;
+  /* 不给自己长滚动条：面板高度由上面量好上报，多出滚动条会让高度忽大忽小 */
+  overflow: hidden;
 }
 
 /* 面板 iframe 自己铺底色：宿主不会替我们填背景，少了这一层就是浅字压白底 */
 body {
-  background: var(--bg, #f7f7f5);
+  background: transparent;
   color: var(--text, #1b1f23);
-  min-height: 100%;
 }
 
 .ac {
-  padding: 8px 12px 12px;
+  padding: 6px 12px;
   font: 400 13px/1.55 var(--font-ui, system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif);
   color: var(--text);
 }
@@ -27,80 +30,152 @@ body {
 }
 
 .ac-box {
-  max-width: 760px;
-  margin: 0 auto;
-  display: grid;
-  gap: 10px;
-  padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
-  border-radius: var(--r-md, 12px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
+  border-radius: calc(14px * var(--corner-radius-scale, 1));
+  /* 底色取主题里「抬起来的卡片」那一档；不够透明的部分交给下面的磨砂补 */
   background: color-mix(in srgb, var(--bg-card, #fff) 72%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+/* 磨砂：不给 saturate，饱和度增强会拉动整体色相，在暗色主题下看着发闷 */
+@supports ((-webkit-backdrop-filter: blur(2px)) or (backdrop-filter: blur(2px))) {
+  .ac-box {
+    -webkit-backdrop-filter: blur(26px);
+    backdrop-filter: blur(26px);
+  }
+}
+
+/* ── 顶栏：整条是折叠开关 ── */
+.ac-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  height: 44px;
+  /* 上内边距给 10px：顶栏贴着面板上沿，不补这一下控件看着会浮在上边 */
+  padding: 10px 10px 0 12px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  background: transparent;
+  border-radius: calc(13px * var(--corner-radius-scale, 1)) calc(13px * var(--corner-radius-scale, 1)) 0 0;
+}
+
+/* 顶栏不做 hover 变色：它贴在输入框上方，一变色就像多了一条遮盖条 */
+
+.ac[data-expanded="false"] .ac-bar {
+  height: 100%;
+  border-radius: calc(13px * var(--corner-radius-scale, 1));
+}
+
+.ac-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.ac-head-text {
+  min-width: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-light, var(--text));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ac-tag {
+  flex: none;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-light, var(--text));
+  opacity: .72;
+}
+
+.ac-tools {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  margin-left: auto;
+}
+
+/* ── 主体 ── */
+.ac-body {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 10px;
+}
+
+.ac[data-expanded="false"] .ac-body {
+  display: none;
 }
 
 .ac-question {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
+  line-height: 1.5;
   letter-spacing: -.01em;
+  overflow-wrap: anywhere;
 }
 
-/* 选项：窄的时候自动变一列 */
+/* 选项：一行一个 */
 .ac-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .ac-opt {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 11px;
   min-width: 0;
   appearance: none;
   text-align: left;
-  border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-card, #fff) 46%, transparent);
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
+  border-radius: calc(12px * var(--corner-radius-scale, 1));
+  background: transparent;
   color: var(--text);
-  padding: 9px 12px;
+  padding: 9px 11px;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
+  line-height: 1.45;
   cursor: pointer;
-  transition: transform .12s ease, border-color .16s, background .16s, box-shadow .18s;
+  transition: background .16s ease, border-color .16s ease;
 }
 
 .ac-opt:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  box-shadow: 0 3px 14px color-mix(in srgb, var(--accent) 16%, transparent);
-}
-
-.ac-opt:active {
-  transform: scale(.98);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
 }
 
 .ac-opt.is-on {
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
-.ac-mark {
+.ac-num {
   flex: none;
-  width: 15px;
-  height: 15px;
+  width: 19px;
+  height: 19px;
   display: grid;
   place-items: center;
-  border-radius: 5px;
-  border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
-  font-size: 10px;
+  border-radius: calc(6px * var(--corner-radius-scale, 1));
+  background: color-mix(in srgb, var(--text) 9%, transparent);
+  font-size: 11px;
   line-height: 1;
-  color: var(--accent);
+  color: var(--text-light, var(--text));
 }
 
-.ac-opt.is-on .ac-mark {
-  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
+.ac-opt.is-on .ac-num {
+  background: var(--accent);
+  color: #fff;
 }
 
 .ac-label {
@@ -115,20 +190,20 @@ body {
 .ac-custom {
   flex: 1;
   min-width: 0;
-  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--text) 3.5%, transparent);
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
+  border-radius: calc(12px * var(--corner-radius-scale, 1));
+  background: transparent;
   color: var(--text);
-  padding: 8px 11px;
+  padding: 9px 11px;
   font: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
   transition: border-color .16s, box-shadow .16s;
 }
 
 .ac-custom:focus {
   outline: none;
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .ac-custom::placeholder {
@@ -136,9 +211,95 @@ body {
   opacity: .65;
 }
 
-.ac-foot {
+.ac-hint {
   margin: 0;
   font-size: 11px;
+  line-height: 1.4;
+  color: var(--danger, #d9534f);
+}
+
+/* 空的时候整行不占位，省高度 */
+.ac-hint:empty {
+  display: none;
+}
+
+.ac-done {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* ── 控件 ── */
+.ac-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
+  border-radius: calc(8px * var(--corner-radius-scale, 1));
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.ac-btn:hover {
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+}
+
+.ac-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.ac-btn.primary:hover {
+  background: var(--accent-hover);
+}
+
+.ac-btn[disabled] {
+  opacity: .5;
+  cursor: default;
+}
+
+.ac-icon {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
   color: var(--text-light, var(--text));
-  opacity: .72;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(7px * var(--corner-radius-scale, 1));
+  cursor: pointer;
+  transition: background .16s, color .16s, border-color .16s;
+}
+
+.ac-icon:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+  border-color: var(--border, color-mix(in srgb, var(--text) 12%, transparent));
+}
+
+/* 收起时箭头朝下（点它展开），展开时朝上（点它收起） */
+#ac-toggle svg {
+  transition: transform .2s cubic-bezier(.22, .75, .25, 1);
+}
+
+.ac[data-expanded="true"] #ac-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* 收起时只留展开箭头：这时候既看不到选项也看不到提示，跳过/确认放出来只会误点 */
+.ac[data-expanded="false"] .ac-bar .ac-btn {
+  display: none;
+}
+
+.ac-box.is-done .ac-options,
+.ac-box.is-done .ac-custom-row,
+.ac-box.is-done .ac-tools {
+  display: none;
 }

@@ -9,7 +9,11 @@
   "minAppVersion": "0.1013.0",
   "capabilities": [
     "app/tools.expose-to-model",
-    "app/input.panels"
+    "app/input.panels",
+    "app/session.start-turn",
+    "app/sessions.read",
+    "app/sessions.manage",
+    "app/hooks.session-input"
   ],
   "contributes": {}
 }
