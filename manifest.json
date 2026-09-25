@@ -1,11 +1,11 @@
 {
   "manifestVersion": 2,
   "id": "ask-choice",
-  "name": "选项提问",
+  "name": "提问选择",
   "version": "1.0.0",
   "entry": "index.js",
   "icon": "assets/icon.svg",
-  "description": "让 Agent 在需要你拿主意时，把几个选项直接列在输入框上方：点一个就行，也能自己写一个答案。",
+  "description": "需要你拿主意时，把选项挂到输入框上方：点一下，答案就回到对话里。",
   "minAppVersion": "0.1013.0",
   "capabilities": [
     "app/tools.expose-to-model",
@@ -15,5 +15,12 @@
     "app/sessions.manage",
     "app/hooks.session-input"
   ],
-  "contributes": {}
+  "contributes": {
+    "settings": {
+      "title": "提问选择",
+      "ui": {
+        "route": "/settings.html"
+      }
+    }
+  }
 }
