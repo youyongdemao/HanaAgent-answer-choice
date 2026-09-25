@@ -1,7 +1,7 @@
 {
   "manifestVersion": 2,
   "id": "ask-choice",
-  "name": "提问选择",
+  "name": "答案选择",
   "version": "1.0.0",
   "entry": "index.js",
   "icon": "assets/icon.svg",
@@ -17,7 +17,7 @@
   ],
   "contributes": {
     "settings": {
-      "title": "提问选择",
+      "title": "答案选择",
       "ui": {
         "route": "/settings.html"
       }
