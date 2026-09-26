@@ -94,6 +94,9 @@ export default defineApp(async (sdk) => {
   /** panelId -> { panelId, sessionPath, sessionId, callToken, question } */
   const pending = new Map();
 
+  /** 当前的工具注册句柄：形态变了就注销重注册，不用等 App 重载 */
+  let askTool = null;
+
   /** 读当前形态设置；读不到就当面板。 */
   async function currentForm() {
     try {
@@ -155,6 +158,12 @@ export default defineApp(async (sdk) => {
         await sdk.config.set("form", value);
       } catch (error) {
         return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
+      }
+      // 设置存下之后立刻重注册工具，让新的形态当场生效
+      try {
+        await registerAskTool();
+      } catch (error) {
+        return c.json({ ok: false, message: `已保存，但重新注册工具失败：${errorText(error)}` }, 500);
       }
       return c.json({ ok: true, form: value });
     });
@@ -219,9 +228,18 @@ export default defineApp(async (sdk) => {
     });
   });
 
-  await sdk.tools.register({
+  async function registerAskTool() {
+    if (askTool) {
+      try {
+        await askTool.disposeAsync();
+      } catch (error) {
+        await sdk.logger.warn(`ask-choice: 注销旧工具失败 ${errorText(error)}`);
+      }
+      askTool = null;
+    }
+    askTool = await sdk.tools.register({
     name: "ask_choice",
-    description: describeFor(form),
+    description: describeFor(await currentForm()),
     parameters: {
       type: "object",
       properties: {
@@ -302,7 +320,9 @@ export default defineApp(async (sdk) => {
         details: { panelId, options: list, multi: isMulti, allowCustom },
       };
     },
-  });
+    });
+  }
 
+  await registerAskTool();
   await sdk.logger.info("ask-choice ready");
 });
