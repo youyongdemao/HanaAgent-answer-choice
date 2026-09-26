@@ -4,89 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>快捷回复 · 关于</title>
-  <script>
-    // 主题跟随：设置页与宿主同源，直接从宿主窗口抄它正在用的那套变量最可靠
-    //（宿主塞进 URL 的只是创建时的初值，而且它只在主题变化时才推送）。
-    // 抄不到（不在宿主里、跳域）才回退到 URL 里那份主题表。
-    (() => {
-      const VARS = [
-        "--bg", "--bg-card", "--text", "--text-light", "--text-muted",
-        "--accent", "--accent-hover", "--accent-rgb", "--border",
-        "--font-ui", "--font-mono", "--corner-radius-scale", "--green", "--danger",
-      ];
-      let link = null;
-
-      function fromHostWindow() {
-        try {
-          const hw = window.parent;
-          if (!hw || hw === window) return false;
-          const root = hw.document && hw.document.documentElement;
-          if (!root) return false;
-          const cs = hw.getComputedStyle(root);
-          let painted = 0;
-          for (const name of VARS) {
-            const value = cs.getPropertyValue(name).trim();
-            if (!value) continue;
-            document.documentElement.style.setProperty(name, value);
-            painted += 1;
-          }
-          const theme = String(root.dataset.theme || "").trim();
-          if (theme) {
-            document.documentElement.dataset.theme = theme;
-            document.body.dataset.hanaTheme = theme;
-          }
-          return painted > 0;
-        } catch (error) {
-          return false;
-        }
-      }
-
-      function fromUrl() {
-        const advertised = new URLSearchParams(window.location.search).get("hana-css");
-        if (!advertised) return;
-        try {
-          const stylesheetUrl = new URL(advertised, window.location.href);
-          if (
-            stylesheetUrl.origin !== window.location.origin ||
-            (stylesheetUrl.protocol !== "http:" && stylesheetUrl.protocol !== "https:") ||
-            stylesheetUrl.pathname !== "/api/apps/theme.css" ||
-            !stylesheetUrl.searchParams.get("theme") ||
-            stylesheetUrl.username ||
-            stylesheetUrl.password ||
-            stylesheetUrl.hash
-          ) {
-            return;
-          }
-          if (!link) {
-            link = document.createElement("link");
-            link.rel = "stylesheet";
-            document.head.appendChild(link);
-          }
-          if (link.getAttribute("href") !== stylesheetUrl.href) link.setAttribute("href", stylesheetUrl.href);
-        } catch (error) {
-          console.warn("[ask-choice] 无法加载 Hana 主题样式", error);
-        }
-      }
-
-      if (!fromHostWindow()) fromUrl();
-
-      // 宿主换主题就重新抄一遍
-      try {
-        const hw = window.parent;
-        if (hw && hw !== window && hw.document && hw.document.documentElement) {
-          new MutationObserver(() => {
-            if (!fromHostWindow()) fromUrl();
-          }).observe(hw.document.documentElement, {
-            attributes: true,
-            attributeFilter: ["data-theme", "class", "style"],
-          });
-        }
-      } catch (error) {
-        /* 不在宿主里就没有可跟随的对象 */
-      }
-    })();
-  </script>
   <link rel="stylesheet" href="./assets/settings.css">
+  <!-- 主题跟随与宿主握手都在这里：少了它宿主会一直等，页面转圈到超时 -->
+  <script type="module" src="./assets/settings.js"></script>
 </head>
 <body data-hana-theme="inherit">
   <div class="st-page">
@@ -117,7 +37,7 @@
 
     <section class="st-block">
       <h2 class="st-title">仓库</h2>
-      <p class="st-text st-mono">github.com/youyongdemao/ask-choice</p>
+      <p class="st-text st-mono">github.com/youyongdemao/HanaAgent-answer-choice</p>
     </section>
 
   </div>
