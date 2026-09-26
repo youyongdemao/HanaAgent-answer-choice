@@ -39,6 +39,27 @@ function errorText(error) {
   return String(error?.message || error);
 }
 
+const FORM_PANEL = "panel";
+const FORM_CARD = "card";
+
+/** 面板形态下工具本身的描述 */
+const PANEL_DESCRIPTION =
+  "只要答案能列成 2–8 个短语，就默认用它，而不是写一行文字去问：既要用于必须由用户拍板的岔路（用哪个方案、改哪个文件、按哪条路线），" +
+  "也用于顺带收的偏好（这趟想带上什么、先动哪块、要不要一起处理）。把选项挂到用户输入框上方，用户点选后答案会作为一条新消息回到对话里。" +
+  "只有这几种情况才用普通回复：答案需要展开解释或写成一句话以上的长文；答案只有一个合理选项；你自己能查到或能直接决定的事。" +
+  "调用后立刻返回「面板已挂出」的回执，用户点完你才会收到新消息，因此同一轮里不要重复调用。";
+
+/** 卡片形态下工具本身的描述：引导改走 show_card */
+const CARD_DESCRIPTION =
+  "用户把提问形态设成了「卡片」：需要用户拿主意时不要调用本工具，改用 show_card 把卡片挂进对话——" +
+  "show_card({ template: \"ask-choice/assets/choice.card.html\", state: { uiLanguage, title, question, options, multi } })，" +
+  "用户点选后选择会作为一条新消息回到对话里。卡片适合顺带一问；当这件事必须停下来等用户回答不可时，仍然可以调用本工具把面板挂到输入框上方。" +
+  "判断标准不变：答案能列成 2–8 个短语才问，需要长篇展开的用文字问。";
+
+function describeFor(form) {
+  return form === FORM_CARD ? CARD_DESCRIPTION : PANEL_DESCRIPTION;
+}
+
 /**
  * 从会话路径解出 sessionId。
  * 宿主对 session:get 的定位方式在不同版本里换过：先试 legacySessionPath，再试 sessionPath，
@@ -74,6 +95,20 @@ export default defineApp(async (sdk) => {
   /** panelId -> { panelId, sessionPath, sessionId, callToken, question } */
   const pending = new Map();
 
+  /** 读当前形态设置；读不到就当面板。 */
+  async function currentForm() {
+    try {
+      const value = await sdk.config.get("form");
+      return value === FORM_CARD ? FORM_CARD : FORM_PANEL;
+    } catch (error) {
+      await sdk.logger.warn(`ask-choice: 读设置失败 ${errorText(error)}`);
+      return FORM_PANEL;
+    }
+  }
+
+  const form = await currentForm();
+  await sdk.logger.info(`ask-choice: 提问形态 = ${form}`);
+
   /**
    * 收起一个会话下还挂着的面板。
    * 用户在会话里发了新消息，这次提问就算过去了，面板不该继续占着输入框上方。
@@ -103,6 +138,28 @@ export default defineApp(async (sdk) => {
   });
 
   await sdk.routes.register((app) => {
+    // 设置页读当前形态
+    app.get("/settings", async (c) => {
+      return c.json({ ok: true, form: await currentForm() });
+    });
+
+    // 设置页保存形态
+    app.post("/settings", async (c) => {
+      let body = null;
+      try {
+        body = await c.req.json();
+      } catch {
+        body = null;
+      }
+      const value = body && body.form === FORM_CARD ? FORM_CARD : FORM_PANEL;
+      try {
+        await sdk.config.set("form", value);
+      } catch (error) {
+        return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
+      }
+      return c.json({ ok: true, form: value });
+    });
+
     // 面板页面点「确认」或「跳过」后打到这里
     app.post("/submit", async (c) => {
       let body = null;
@@ -165,11 +222,7 @@ export default defineApp(async (sdk) => {
 
   await sdk.tools.register({
     name: "ask_choice",
-    description:
-      "只要答案能列成 2–8 个短语，就默认用它，而不是写一行文字去问：既要用于必须由用户拍板的岔路（用哪个方案、改哪个文件、按哪条路线），" +
-      "也用于顺带收的偏好（这趟想带上什么、先动哪块、要不要一起处理）。把选项挂到用户输入框上方，用户点选后答案会作为一条新消息回到对话里。" +
-      "只有这几种情况才用普通回复：答案需要展开解释或写成一句话以上的长文；答案只有一个合理选项；你自己能查到或能直接决定的事。" +
-      "调用后立刻返回「面板已挂出」的回执，用户点完你才会收到新消息，因此同一轮里不要重复调用。",
+    description: describeFor(form),
     parameters: {
       type: "object",
       properties: {

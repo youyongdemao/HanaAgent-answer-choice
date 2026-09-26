@@ -3,25 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>快捷回复 · 关于</title>
+  <title>快捷回复 · 设置</title>
   <link rel="stylesheet" href="./assets/settings.css">
   <!-- 主题跟随与宿主握手都在这里：少了它宿主会一直等，页面转圈到超时 -->
   <script type="module" src="./assets/settings.js"></script>
 </head>
 <body data-hana-theme="inherit">
   <div class="st-page">
+
+    <h1 class="st-title">提问形态</h1>
+    <div class="st-card">
+      <label class="st-choice">
+        <input type="radio" name="form" value="panel">
+        <span class="st-choice-text">
+          <b>选择面板</b>
+          <i>挂在输入框上方，不打断对话；点选后答案回到对话</i>
+        </span>
+      </label>
+      <label class="st-choice">
+        <input type="radio" name="form" value="card">
+        <span class="st-choice-text">
+          <b>选择卡片</b>
+          <i>作为一张卡片出现在对话里，适合顺带一问</i>
+        </span>
+      </label>
+    </div>
+    <div class="st-actions">
+      <span class="st-status" id="stStatus"></span>
+      <button class="st-save" id="stSave" type="button">保存</button>
+    </div>
+
     <h1 class="st-title">关于</h1>
     <div class="st-card">
-      <!-- 这里是自定义页面，版本号写在文件里；发版时记得同步 -->
+      <!-- 自定义页面，版本号写在文件里；发版时记得同步 -->
       <div class="st-row">
         <span class="st-label">版本</span>
-        <span class="st-value st-mono">v1.0.0</span>
+        <span class="st-value st-mono">v0.1.0</span>
       </div>
       <div class="st-row">
         <span class="st-label">GitHub</span>
         <span class="st-value st-mono">github.com/youyongdemao/HanaAgent-answer-choice</span>
       </div>
     </div>
+
   </div>
 </body>
 </html>

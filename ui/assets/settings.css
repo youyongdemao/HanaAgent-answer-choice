@@ -1,4 +1,4 @@
-/* 快捷回复 · 设置页（关于）
+/* 快捷回复 · 设置页
    跟随宿主主题变量；没有变量时给浅色兜底。 */
 
 html,
@@ -21,10 +21,15 @@ body {
 }
 
 .st-title {
-  margin: 0;
-  font-size: 15px;
+  margin: 8px 0 0;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: -.01em;
+  letter-spacing: .01em;
+  color: var(--text-muted, var(--text-light, var(--text)));
+}
+
+.st-title:first-child {
+  margin-top: 0;
 }
 
 .st-card {
@@ -34,6 +39,82 @@ body {
   overflow: hidden;
 }
 
+/* ── 形态单选 ── */
+.st-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  cursor: pointer;
+}
+
+.st-choice + .st-choice {
+  border-top: 1px solid color-mix(in srgb, var(--border, color-mix(in srgb, var(--text) 12%, transparent)) 75%, transparent);
+}
+
+.st-choice input {
+  flex: none;
+  margin: 3px 0 0;
+  accent-color: var(--accent, #6b7a90);
+  cursor: pointer;
+}
+
+.st-choice-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.st-choice-text b {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.st-choice-text i {
+  font-style: normal;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted, var(--text-light, var(--text)));
+}
+
+/* ── 保存行 ── */
+.st-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.st-status {
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--text-muted, var(--text-light, var(--text)));
+}
+
+.st-save {
+  flex: none;
+  padding: 6px 14px;
+  border: 1px solid var(--accent, #6b7a90);
+  border-radius: calc(9px * var(--corner-radius-scale, 1));
+  background: var(--accent, #6b7a90);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.st-save:hover {
+  background: var(--accent-hover, var(--accent, #6b7a90));
+}
+
+.st-save[disabled] {
+  opacity: .5;
+  cursor: default;
+}
+
+/* ── 关于的两行 ── */
 .st-row {
   display: flex;
   align-items: center;

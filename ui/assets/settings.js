@@ -1,4 +1,4 @@
-// ui/assets/settings.js — 设置页的脚手架：向宿主报到 + 跟随主题
+// ui/assets/settings.js — 设置页的脚手架：向宿主报到 + 跟随主题 + 读写提问形态
 //
 // 必须引 SDK 并调 hana.ready()：宿主用这个握手确认 App 的 UI 页面已经挂好，
 // 少了它，设置页会一直转圈，最后被判「应用加载失败」。
@@ -95,6 +95,79 @@ try {
 } catch (error) {
   /* 不在宿主里就没有可跟随的对象 */
 }
+
+// ── 提问形态：读写本 App 的 /settings 路由 ──
+
+function routesBase() {
+  const match = /^\/api\/apps\/([^/]+)\//.exec(window.location.pathname);
+  return match ? `/api/apps/${match[1]}/routes` : "";
+}
+
+async function api(path, options) {
+  const base = routesBase();
+  if (!base) throw new Error("拿不到应用地址");
+  const headers = { "Content-Type": "application/json" };
+  const token = new URLSearchParams(window.location.search).get("appSurfaceSession") || "";
+  if (token) headers["X-Hana-App-Surface-Session"] = token;
+  const response = await fetch(base + path, { headers, ...options });
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+  if (!response.ok || !data || data.ok !== true) {
+    throw new Error((data && data.message) || `请求失败（${response.status}）`);
+  }
+  return data;
+}
+
+function setStatus(text) {
+  const element = document.getElementById("stStatus");
+  if (element) element.textContent = text;
+}
+
+function selectForm(form) {
+  for (const element of document.querySelectorAll('input[name="form"]')) {
+    element.checked = element.value === form;
+  }
+}
+
+function pickedForm() {
+  const element = [...document.querySelectorAll('input[name="form"]')].find((item) => item.checked);
+  return element ? element.value : "";
+}
+
+async function loadSettings() {
+  try {
+    const data = await api("/settings");
+    selectForm(data.form === "card" ? "card" : "panel");
+  } catch (error) {
+    setStatus(`读不到当前设置：${String(error?.message || error)}`);
+  }
+}
+
+async function saveSettings() {
+  const button = document.getElementById("stSave");
+  const picked = pickedForm();
+  if (!picked) {
+    setStatus("先选一个形态。");
+    return;
+  }
+  if (button) button.disabled = true;
+  setStatus("保存中…");
+  try {
+    await api("/settings", { method: "POST", body: JSON.stringify({ form: picked }) });
+    setStatus("已保存，下一轮提问按这个来。");
+  } catch (error) {
+    setStatus(`保存失败：${String(error?.message || error)}`);
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+document.getElementById("stSave")?.addEventListener("click", saveSettings);
+loadSettings();
 
 try {
   hana.ready();

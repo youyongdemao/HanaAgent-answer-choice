@@ -2,7 +2,7 @@
   "manifestVersion": 2,
   "id": "ask-choice",
   "name": "快捷回复",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "entry": "index.js",
   "icon": "assets/icon.svg",
   "description": "需要你拿主意时，把选项挂到输入框上方：点一下，答案就回到对话里。",
@@ -18,6 +18,19 @@
   "contributes": {
     "settings": {
       "title": "快捷回复",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "form": {
+            "type": "string",
+            "title": "提问形态",
+            "description": "需要你拿主意时，用哪一种界面来问",
+            "enum": ["panel", "card"],
+            "enumNames": ["选择面板（输入框上方）", "选择卡片（对话里）"],
+            "default": "panel"
+          }
+        }
+      },
       "ui": {
         "route": "/settings.html"
       }
