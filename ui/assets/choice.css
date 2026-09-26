@@ -284,13 +284,14 @@ body {
   border-color: var(--border, color-mix(in srgb, var(--text) 12%, transparent));
 }
 
-/* 收起时箭头朝下（点它展开），展开时朝上（点它收起） */
+/* 展开时箭头朝下（提示可往上收），收起时朝上（提示可往下展） */
 #ac-toggle svg {
   transition: transform .2s cubic-bezier(.22, .75, .25, 1);
+  transform: rotate(180deg);
 }
 
 .ac[data-expanded="true"] #ac-toggle svg {
-  transform: rotate(180deg);
+  transform: none;
 }
 
 /* 收起时只留展开箭头：这时候既看不到选项也看不到提示，跳过/确认放出来只会误点 */
