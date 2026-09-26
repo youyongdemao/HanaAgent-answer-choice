@@ -13,7 +13,8 @@
     "app/session.start-turn",
     "app/sessions.read",
     "app/sessions.manage",
-    "app/hooks.session-input"
+    "app/hooks.session-input",
+    "app/hooks.agent-before-start"
   ],
   "contributes": {
     "settings": {

@@ -141,6 +141,40 @@ export default defineApp(async (sdk) => {
     return undefined;
   });
 
+  // ---------------------------------------------------------------------------
+  // 每轮把「该用快捷回复」这条规则钉进系统提示。
+  //
+  // 光靠工具描述不够：模型在一长串工具里未必每次都想得起它，现实中往往要
+  // 真人补一句「你怎么不用卡片」才触发。而发布给别人用之后，没有人会补这句。
+  // 所以改成 App 自己每轮注入 —— 把「靠人提醒」换成「靠机制提醒」。
+  //
+  // 走 agent/before-start：它在每轮开始前拿到该轮的 systemPrompt，可以返回
+  // 改写后的版本，代价小、位置最靠前。注入前先查标记，避免宿主重复传入时叠加。
+  // ---------------------------------------------------------------------------
+  const RULE_MARK = "【快捷回复 / ask-choice】";
+  const RULE_TAIL =
+    "需要长篇展开的、只剩一个合理选项的、你自己能查到或直接决定的问题，不问。";
+  const RULE_TEXT =
+    form === FORM_CARD
+      ? RULE_MARK +
+        "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就用 show_card 挂一张 ask-choice 卡片" +
+        "（template: \"ask-choice/assets/choice.card.html\"），别在正文里罗列问题让用户自己找答案。" +
+        RULE_TAIL
+      : RULE_MARK +
+        "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂到用户输入框上方，" +
+        "不要在正文里罗列问题让用户自己找答案。" +
+        "做法：调用内置工具 tool_call，参数 server 传 \"ask-choice\"、tool 传 \"ask_choice\"、" +
+        "arguments 传 { question, options }。" +
+        "ask_choice 是应用工具，通常不在你手边的工具表里，但按上面这个方式一步就能调到；" +
+        "不要因为工具表里没有它或没搜到它，就改用文字提问，也不必先 tool_search。" +
+        RULE_TAIL;
+
+  await sdk.hooks.onDecision("agent/before-start", async (invocation) => {
+    const base = typeof invocation?.systemPrompt === "string" ? invocation.systemPrompt : "";
+    if (base.includes(RULE_MARK)) return undefined; // 已经在里面了，不再叠加
+    return { systemPrompt: base ? `${base}\n\n${RULE_TEXT}` : RULE_TEXT };
+  });
+
   await sdk.routes.register((app) => {
     // 设置页读当前形态
     app.get("/settings", async (c) => {

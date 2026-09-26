@@ -11,7 +11,21 @@
 - 你点「确认」或「跳过」后，选择会作为一条消息回到对话，Agent 接着往下做
 - 你在会话里发出下一条消息时，还敞开的面板自己收起
 - 面板是自定义页面（主题跟随宿主），确认按钮由面板自己绘制
+- 每轮往系统提示注入一条调用规则，用户不用去设置里改工具模式，装上就能用
 - 设置页里有一页「关于」：它做什么、需要的五项权限各是干嘛的、仓库地址
+
+## Agent 是怎么被叫起来的
+
+面板形态下 `ask_choice` 是**应用工具**。而极简、轻量、常规这三种工具调用模式下，应用工具都不进
+模型每轮直接选用的工具表，只进 `tool_search` 的目录，模型得先搜再调。
+
+光靠工具描述不够：模型看不到 `ask_choice` 这个名字，就会退回用文字列选项。所以本 App 走
+`agent/before-start` 钩子，每轮把一条硬规则注入系统提示，写清调用路径——直接调 `tool_call`，
+`server` 传 `ask-choice`、`tool` 传 `ask_choice`，不必先 `tool_search`。注入前查标记去重，不重复叠加。
+
+这样用户到手不用动任何设置。代价是每轮多花几十个 token。
+
+卡片形态则走内置工具 `show_card`，模板来自配套配方 `ask-choice`。
 
 ## 为什么不用宿主的阻塞式提问
 
@@ -46,16 +60,20 @@ Agent 侧无需额外说明，工具描述里已经写清了适用场景。参�
 | `app/sessions.read` | 读会话信息，把会话路径换成面板要的 `sessionId` |
 | `app/sessions.manage` | 目标会话不属于本 App 时的跨归属投递（`scope: "all"`） |
 | `app/hooks.session-input` | 用户一提交输入就收起还敞开的面板 |
+| `app/hooks.agent-before-start` | 每轮往系统提示注入调用规则 |
 
-这些都要用户在 设置 → 应用 → 应用能力 里显式开启，默认关闭。
+前四项要在 设置 → 应用 → 应用能力 里显式开启，默认关闭；两个钩子类能力是 `advisory` 档，
+没授权时宿主跳过这个裁决者，回合照常往下走。
 
 ## 结构
 
 ```
-manifest.json        清单（tools + input.panels + session.start-turn）
+manifest.json        清单（tools + input.panels + session.start-turn + 两个钩子）
 index.js             工具 ask_choice：show 挂面板后立即返回；/submit 路由把选择投回会话
+                     两个钩子：session/input 收面板，agent/before-start 注入调用规则
 ui/choice.html       输入框上方的选择页
 ui/assets/choice.js  渲染选项 + 自绘确认按钮，POST 到 /submit
+recipe/              卡片形态的配套配方（模板 + 说明）
 sdk/                 打包随附的 App SDK
 ```
 
@@ -65,6 +83,7 @@ sdk/                 打包随附的 App SDK
 - 宿主自带的确认按钮在非阻塞面板上不生效（它要求面板带 `confirmId`），所以确认按钮由面板自绘
 - 每个会话同时最多 32 个面板，整个宿主 512 个（宿主限制）
 - App 重载后工具 RPC 通道可能不会自动重建，需要刷新界面或重启宿主
+- 卡片形态的模板来自配套配方，配方没装时卡片渲染不出来，改用面板形态
 
 ## 许可
 
