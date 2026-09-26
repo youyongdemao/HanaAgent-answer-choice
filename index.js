@@ -206,8 +206,8 @@ export default defineApp(async (sdk) => {
       } catch (error) {
         return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
       }
-      // 形态由每轮的注入规则现读决定，下一轮就生效，不需要重启宿主。
-      return c.json({ ok: true, form: value, needsReload: false });
+      // needsReload 恒为 true：设置页按「需重启生效」提示。
+      return c.json({ ok: true, form: value, needsReload: true });
     });
 
     // 面板页面点「确认」或「跳过」后打到这里
