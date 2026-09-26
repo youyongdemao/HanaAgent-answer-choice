@@ -79,22 +79,26 @@ export default defineApp(async (sdk) => {
    * 用户在会话里发了新消息，这次提问就算过去了，面板不该继续占着输入框上方。
    */
   async function dismissPanels(sessionId) {
+    let count = 0;
     for (const [id, record] of [...pending]) {
       if (sessionId && record.sessionId !== sessionId) continue;
       pending.delete(id);
+      count += 1;
       try {
         await sdk.userInteraction.dismiss({ sessionId: record.sessionId, id: record.panelId });
       } catch (error) {
         await sdk.logger.warn(`ask-choice: 收面板失败 ${errorText(error)}`);
       }
     }
+    return count;
   }
 
   // 用户一提交输入（也就是开启新一轮），先把还敞开的面板收掉。
   // 只做副作用，返回 undefined：完全不碰用户输入的内容。
   await sdk.hooks.onDecision("session/input", async (invocation) => {
     const sessionId = typeof invocation?.sessionId === "string" ? invocation.sessionId : "";
-    await dismissPanels(sessionId);
+    const count = await dismissPanels(sessionId);
+    if (count > 0) await sdk.logger.info(`ask-choice: 收到新的输入，收起了 ${count} 个面板`);
     return undefined;
   });
 

@@ -1,7 +1,7 @@
 {
   "manifestVersion": 2,
   "id": "ask-choice",
-  "name": "答案选择",
+  "name": "快捷回复",
   "version": "1.0.0",
   "entry": "index.js",
   "icon": "assets/icon.svg",
@@ -17,7 +17,7 @@
   ],
   "contributes": {
     "settings": {
-      "title": "答案选择",
+      "title": "快捷回复",
       "ui": {
         "route": "/settings.html"
       }
