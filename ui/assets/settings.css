@@ -13,7 +13,7 @@ body {
 }
 
 .st-page {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 18px 20px 40px;
   display: grid;
@@ -32,106 +32,190 @@ body {
   margin-top: 0;
 }
 
-.st-card {
-  border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
-  border-radius: calc(12px * var(--corner-radius-scale, 1));
-  background: color-mix(in srgb, var(--bg-card, #fff) 62%, transparent);
-  overflow: hidden;
+.st-hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-muted, var(--text-light, var(--text)));
 }
 
-/* ── 形态单选 ── */
-.st-choice {
-  display: flex;
-  align-items: center;
+/* ── 两张形态大卡 ── */
+.st-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
   gap: 10px;
-  padding: 11px 14px;
-  cursor: pointer;
 }
 
-/* 缩略示意：把两种形态的差别画出来 */
+.st-form {
+  position: relative;
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
+  border-radius: calc(14px * var(--corner-radius-scale, 1));
+  background: color-mix(in srgb, var(--bg-card, #fff) 50%, transparent);
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease;
+}
+
+.st-form:hover {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+.st-form:has(.st-radio:checked) {
+  border-color: var(--accent, #6b7a90);
+  background: color-mix(in srgb, var(--accent, #6b7a90) 8%, transparent);
+}
+
+.st-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.st-form-head {
+  display: grid;
+  gap: 2px;
+}
+
+.st-form-head b {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.st-form-head i {
+  font-style: normal;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted, var(--text-light, var(--text)));
+}
+
+/* ── 预览：把两种形态的实际长相画出来 ── */
 .st-demo {
   position: relative;
-  flex: none;
-  margin-left: auto;
-  width: 96px;
-  height: 60px;
+  display: block;
+  height: 150px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
-  border-radius: calc(9px * var(--corner-radius-scale, 1));
-  background: color-mix(in srgb, var(--bg, #fff) 55%, transparent);
+  border-radius: calc(10px * var(--corner-radius-scale, 1));
+  background: color-mix(in srgb, var(--bg, #fff) 65%, transparent);
   overflow: hidden;
 }
 
-.st-demo em {
+.st-demo > span {
   position: absolute;
   display: block;
   border-radius: 3px;
 }
 
-/* 一条消息 */
-.st-demo .d-msg {
-  left: 9px;
-  right: 28px;
-  top: 8px;
-  height: 5px;
-  background: color-mix(in srgb, var(--text) 18%, transparent);
+/* 对话里的两条消息 */
+.dm {
+  left: 10px;
+  height: 6px;
+  background: color-mix(in srgb, var(--text) 14%, transparent);
 }
 
-/* 那块选择界面：编号方块 + 选项条 */
-.st-demo .d-block {
-  left: 9px;
-  right: 9px;
-  height: 20px;
-  border: 1px solid var(--accent, #6b7a90);
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--accent, #6b7a90) 14%, transparent);
+.dm-1 {
+  top: 10px;
+  right: 48px;
 }
 
-/* 面板贴着输入框；卡片浮在消息流里 */
-.st-demo.is-panel .d-block {
-  bottom: 22px;
-}
-
-.st-demo.is-card .d-block {
-  top: 19px;
+.dm-2 {
+  top: 22px;
+  right: 76px;
 }
 
 /* 底部输入框 */
-.st-demo .d-input {
-  left: 9px;
-  right: 9px;
-  bottom: 6px;
-  height: 11px;
+.d-input {
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  height: 18px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
-  border-radius: 5px;
+  border-radius: 6px;
 }
 
-.st-choice + .st-choice {
-  border-top: 1px solid color-mix(in srgb, var(--border, color-mix(in srgb, var(--text) 12%, transparent)) 75%, transparent);
+/* 面板：贴着输入框上方的一条 */
+.d-panel {
+  left: 10px;
+  right: 10px;
+  bottom: 32px;
+  padding: 6px;
+  border: 1px solid var(--accent, #6b7a90);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent, #6b7a90) 10%, transparent);
 }
 
-.st-choice input {
-  flex: none;
-  margin: 3px 0 0;
-  accent-color: var(--accent, #6b7a90);
-  cursor: pointer;
+/* 卡片：浮在消息流里 */
+.d-card {
+  left: 10px;
+  right: 44px;
+  top: 38px;
+  padding: 7px;
+  border: 1px solid var(--accent, #6b7a90);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent, #6b7a90) 10%, transparent);
 }
 
-.st-choice-text {
+/* 面板顶栏：点 + 标题 + 两个按钮 + 折叠箭头 */
+.d-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.d-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--accent, #6b7a90);
+}
+
+.d-txt {
+  width: 26px;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text) 22%, transparent);
+}
+
+.d-chip {
+  width: 16px;
+  height: 10px;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 16%, transparent));
+  border-radius: 3px;
+}
+
+.d-chip:last-of-type {
+  margin-left: auto;
+}
+
+.d-chev {
+  width: 6px;
+  height: 6px;
+  border-left: 1px solid var(--text-muted, var(--text-light, var(--text)));
+  border-bottom: 1px solid var(--text-muted, var(--text-light, var(--text)));
+  transform: rotate(-45deg);
+  border-radius: 0;
+  margin: 0 2px 3px 2px;
+}
+
+/* 内容：问题条 + 选项条 */
+.d-rows {
   display: grid;
-  gap: 2px;
-  min-width: 0;
+  gap: 4px;
 }
 
-.st-choice-text b {
-  font-weight: 600;
-  font-size: 13px;
+.d-q {
+  height: 5px;
+  width: 72%;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text) 26%, transparent);
 }
 
-.st-choice-text i {
-  font-style: normal;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-muted, var(--text-light, var(--text)));
+.d-opt {
+  height: 13px;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 16%, transparent));
+  border-radius: 5px;
 }
 
 /* ── 保存行 ── */
@@ -172,6 +256,13 @@ body {
 }
 
 /* ── 关于的两行 ── */
+.st-card {
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
+  border-radius: calc(12px * var(--corner-radius-scale, 1));
+  background: color-mix(in srgb, var(--bg-card, #fff) 62%, transparent);
+  overflow: hidden;
+}
+
 .st-row {
   display: flex;
   align-items: center;

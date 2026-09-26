@@ -12,28 +12,44 @@
   <div class="st-page">
 
     <h1 class="st-title">提问形态</h1>
-    <div class="st-card">
-      <label class="st-choice">
-        <input type="radio" name="form" value="panel">
-        <span class="st-choice-text">
+    <p class="st-hint">两种形态功能完全一样：都是「问你一个问题，你点一下就继续」。区别只在弹在哪里。选一个。</p>
+
+    <div class="st-forms">
+
+      <label class="st-form" data-form="panel">
+        <input class="st-radio" type="radio" name="form" value="panel">
+        <span class="st-form-head">
           <b>选择面板</b>
-          <i>挂在输入框上方，不打断对话；点选后答案回到对话</i>
+          <i>挂在输入框上方，不打断对话流</i>
         </span>
-        <span class="st-demo is-panel" aria-hidden="true">
-          <em class="d-msg"></em><em class="d-block"></em><em class="d-input"></em>
+        <span class="st-demo" aria-hidden="true">
+          <span class="dm dm-1"></span>
+          <span class="dm dm-2"></span>
+          <span class="d-panel">
+            <span class="d-bar"><em class="d-dot"></em><em class="d-txt"></em><em class="d-chip"></em><em class="d-chip"></em><em class="d-chev"></em></span>
+            <span class="d-rows"><em class="d-q"></em><em class="d-opt"></em><em class="d-opt"></em></span>
+          </span>
+          <span class="d-input"></span>
         </span>
       </label>
-      <label class="st-choice">
-        <input type="radio" name="form" value="card">
-        <span class="st-choice-text">
+
+      <label class="st-form" data-form="card">
+        <input class="st-radio" type="radio" name="form" value="card">
+        <span class="st-form-head">
           <b>选择卡片</b>
-          <i>作为一张卡片出现在对话里，适合顺带一问</i>
+          <i>作为一张卡片出现在对话里</i>
         </span>
-        <span class="st-demo is-card" aria-hidden="true">
-          <em class="d-msg"></em><em class="d-block"></em><em class="d-input"></em>
+        <span class="st-demo" aria-hidden="true">
+          <span class="dm dm-1"></span>
+          <span class="d-card">
+            <span class="d-rows"><em class="d-q"></em><em class="d-opt"></em><em class="d-opt"></em><em class="d-opt"></em></span>
+          </span>
+          <span class="d-input"></span>
         </span>
       </label>
+
     </div>
+
     <div class="st-actions">
       <span class="st-status" id="stStatus"></span>
       <button class="st-save" id="stSave" type="button">保存</button>
