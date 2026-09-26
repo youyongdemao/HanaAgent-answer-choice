@@ -42,24 +42,18 @@ function errorText(error) {
 const FORM_PANEL = "panel";
 const FORM_CARD = "card";
 
-/** 面板形态下工具本身的描述 */
-const PANEL_DESCRIPTION =
+/**
+ * 工具本身的描述。形态指令不写在这里：工具描述在 App 启动时就固定了、改不了，
+ * 用户切换形态后它会过期。形态相关的指令统一由 agent/before-start 每轮现读设置
+ * 后注入（见下面的 buildRule），这里只留一句指路，说清以系统提示为准。
+ */
+const TOOL_DESCRIPTION =
   "【默认动作】只要你要问用户一个能拆成 2 到 8 个短语的问题，就必须调用本工具把选项挂出来，不要用文字去罗列问题或选项。" +
   "三种场景必用：① 需要用户拍板的岔路（用哪个方案、改哪个文件、走哪条路线）；② 你自己主动发起提问、想收集偏好或让用户挑方向；③ 顺带收的小选择（先动哪块、要不要一起处理）。" +
   "把选项挂到用户输入框上方，用户点选后答案会作为一条新消息回到对话里。" +
   "只有这几种情况才用普通回复：答案需要展开解释或写成一句话以上的长文；答案只有一个合理选项；你自己能查到或能直接决定的事。" +
-  "调用后立刻返回「面板已挂出」的回执，用户点完你才会收到新消息，因此同一轮里不要重复调用。";
-
-/** 卡片形态下工具本身的描述：引导改走 show_card */
-const CARD_DESCRIPTION =
-  "【默认动作】当前提问形态是「卡片」：需要用户拿主意时，不要调用本工具，改用 show_card 把卡片挂进对话——" +
-  "show_card({ template: \"ask-choice/assets/choice.card.html\", state: { uiLanguage, title, question, options, multi, allowCustom } })，" +
-  "用户点选后选择会作为一条新消息回到对话里。" +
-  "触发标准与面板形态一致：只要问题能拆成 2 到 8 个短语就必须问；需要长篇展开的、只剩一个合理选项的、你自己能决定的不问。";
-
-function describeFor(form) {
-  return form === FORM_CARD ? CARD_DESCRIPTION : PANEL_DESCRIPTION;
-}
+  "调用后立刻返回「面板已挂出」的回执，用户点完你才会收到新消息，因此同一轮里不要重复调用。" +
+  "用户可以把提问形态切成「卡片」，那时改用 show_card 挂 ask-choice 卡片；当前该走哪条通道，以系统提示里的形态规则为准。";
 
 /**
  * 从会话路径解出 sessionId。
@@ -154,25 +148,42 @@ export default defineApp(async (sdk) => {
   const RULE_MARK = "【快捷回复 / ask-choice】";
   const RULE_TAIL =
     "需要长篇展开的、只剩一个合理选项的、你自己能查到或直接决定的问题，不问。";
-  const RULE_TEXT =
-    form === FORM_CARD
-      ? RULE_MARK +
-        "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就用 show_card 挂一张 ask-choice 卡片" +
-        "（template: \"ask-choice/assets/choice.card.html\"），别在正文里罗列问题让用户自己找答案。" +
-        RULE_TAIL
-      : RULE_MARK +
-        "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂到用户输入框上方，" +
+
+  /**
+   * 按当前形态拼这一轮要注入的规则。
+   * form 由调用方每轮现读传进来，不用启动时那份快照——否则用户在设置页切换形态后，
+   * 注入的规则还是旧的，他选的东西要重启才生效。
+   */
+  function buildRule(form) {
+    if (form === FORM_CARD) {
+      return (
+        RULE_MARK +
+        "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂出来，" +
         "不要在正文里罗列问题让用户自己找答案。" +
-        "做法：调用内置工具 tool_call，参数 server 传 \"ask-choice\"、tool 传 \"ask_choice\"、" +
-        "arguments 传 { question, options }。" +
-        "ask_choice 是应用工具，通常不在你手边的工具表里，但按上面这个方式一步就能调到；" +
-        "不要因为工具表里没有它或没搜到它，就改用文字提问，也不必先 tool_search。" +
-        RULE_TAIL;
+        "当前形态是「卡片」：用内置工具 show_card 挂一张 ask-choice 卡片，" +
+        "template 传 \"ask-choice/assets/choice.card.html\"，" +
+        "state 传 { uiLanguage, question, options, multi }，uiLanguage 取当前对话语言。" +
+        "这个形态下不要调用 ask_choice 工具，那是弹窗形态的通道。" +
+        RULE_TAIL
+      );
+    }
+    return (
+      RULE_MARK +
+      "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂到用户输入框上方，" +
+      "不要在正文里罗列问题让用户自己找答案。" +
+      "当前形态是「弹窗」：调用内置工具 tool_call，参数 server 传 \"ask-choice\"、" +
+      "tool 传 \"ask_choice\"、arguments 传 { question, options }。" +
+      "ask_choice 是应用工具，通常不在你手边的工具表里，但按上面这个方式一步就能调到；" +
+      "不要因为工具表里没有它或没搜到它，就改用文字提问，也不必先 tool_search。" +
+      RULE_TAIL
+    );
+  }
 
   await sdk.hooks.onDecision("agent/before-start", async (invocation) => {
     const base = typeof invocation?.systemPrompt === "string" ? invocation.systemPrompt : "";
     if (base.includes(RULE_MARK)) return undefined; // 已经在里面了，不再叠加
-    return { systemPrompt: base ? `${base}\n\n${RULE_TEXT}` : RULE_TEXT };
+    const rule = buildRule(await currentForm());
+    return { systemPrompt: base ? `${base}\n\n${rule}` : rule };
   });
 
   await sdk.routes.register((app) => {
@@ -195,8 +206,8 @@ export default defineApp(async (sdk) => {
       } catch (error) {
         return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
       }
-      // 工具描述无法在运行时替换，所以这里告诉前端：重启应用后才生效
-      return c.json({ ok: true, form: value, needsReload: true });
+      // 形态由每轮的注入规则现读决定，下一轮就生效，不需要重启宿主。
+      return c.json({ ok: true, form: value, needsReload: false });
     });
 
     // 面板页面点「确认」或「跳过」后打到这里
@@ -264,7 +275,7 @@ export default defineApp(async (sdk) => {
     //（工具表仍指着旧 handle，调用报 "no tool executor"），所以形态切换只能靠重载 App 生效。
     askTool = await sdk.tools.register({
     name: "ask_choice",
-    description: describeFor(await currentForm()),
+    description: TOOL_DESCRIPTION,
     parameters: {
       type: "object",
       properties: {

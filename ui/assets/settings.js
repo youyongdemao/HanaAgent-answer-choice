@@ -158,7 +158,7 @@ async function saveSettings() {
   setStatus("保存中…");
   try {
     const data = await api("/settings", { method: "POST", body: JSON.stringify({ form: picked }) });
-    setStatus(data.needsReload ? "已保存。请重启 HanaAgent 以完成设置。" : "已保存。");
+    setStatus(data.needsReload ? "已保存。请重启 HanaAgent 以完成设置。" : "已保存。下一轮提问就按这个形态来。");
   } catch (error) {
     setStatus(`保存失败：${String(error?.message || error)}`);
   } finally {
