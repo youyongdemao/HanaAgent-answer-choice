@@ -157,8 +157,8 @@ async function saveSettings() {
   if (button) button.disabled = true;
   setStatus("保存中…");
   try {
-    await api("/settings", { method: "POST", body: JSON.stringify({ form: picked }) });
-    setStatus("已保存，下一轮提问按这个来。");
+    const data = await api("/settings", { method: "POST", body: JSON.stringify({ form: picked }) });
+    setStatus(data.needsReload ? "已保存。重启应用后按新形态提问。" : "已保存。");
   } catch (error) {
     setStatus(`保存失败：${String(error?.message || error)}`);
   } finally {

@@ -159,13 +159,8 @@ export default defineApp(async (sdk) => {
       } catch (error) {
         return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
       }
-      // 设置存下之后立刻重注册工具，让新的形态当场生效
-      try {
-        await registerAskTool();
-      } catch (error) {
-        return c.json({ ok: false, message: `已保存，但重新注册工具失败：${errorText(error)}` }, 500);
-      }
-      return c.json({ ok: true, form: value });
+      // 工具描述无法在运行时替换，所以这里告诉前端：重启应用后才生效
+      return c.json({ ok: true, form: value, needsReload: true });
     });
 
     // 面板页面点「确认」或「跳过」后打到这里
@@ -229,14 +224,8 @@ export default defineApp(async (sdk) => {
   });
 
   async function registerAskTool() {
-    if (askTool) {
-      try {
-        await askTool.disposeAsync();
-      } catch (error) {
-        await sdk.logger.warn(`ask-choice: 注销旧工具失败 ${errorText(error)}`);
-      }
-      askTool = null;
-    }
+    // 形态在 App 启动时读一次。宿主不允许同名工具重复注册，而先注销会让执行器映射失效
+    //（工具表仍指着旧 handle，调用报 "no tool executor"），所以形态切换只能靠重载 App 生效。
     askTool = await sdk.tools.register({
     name: "ask_choice",
     description: describeFor(await currentForm()),
