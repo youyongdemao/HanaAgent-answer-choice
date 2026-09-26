@@ -90,104 +90,100 @@ body {
   color: var(--text-muted, var(--text-light, var(--text)));
 }
 
-/* ── 预览：把两种形态的实际长相画出来 ── */
+/* ── 预览：用一轮真实对话画出两种形态的区别 ── */
 .st-demo {
   position: relative;
   display: block;
-  height: 150px;
+  height: 238px;
+  padding: 10px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
   border-radius: calc(10px * var(--corner-radius-scale, 1));
   background: color-mix(in srgb, var(--bg, #fff) 65%, transparent);
   overflow: hidden;
+  font-size: 9.5px;
+  line-height: 1.5;
 }
 
-.st-demo > span {
-  position: absolute;
-  display: block;
-  border-radius: 3px;
-}
-
-/* 对话里的消息条 */
+/* 对话消息 */
 .dm {
-  left: 10px;
-  height: 6px;
-  background: color-mix(in srgb, var(--text) 14%, transparent);
+  display: block;
+  max-width: 80%;
+  margin-bottom: 6px;
+  padding: 4px 7px;
+  border-radius: 7px;
+  color: var(--text);
 }
 
-.dm-1 {
-  top: 10px;
-  right: 56px;
+.dm-user {
+  margin-left: auto;
+  background: color-mix(in srgb, var(--accent, #6b7a90) 16%, transparent);
 }
 
-.dm-2 {
-  top: 22px;
-  right: 84px;
+.dm-bot {
+  background: color-mix(in srgb, var(--text) 7%, transparent);
 }
 
-.dm-3 {
-  top: 34px;
-  right: 62px;
-}
-
-.dm-4 {
-  top: 120px;
-  right: 72px;
-}
-
-/* 底部输入框（带一个光标，好认） */
+/* 底部输入框 */
 .d-input {
+  position: absolute;
   left: 10px;
   right: 10px;
-  bottom: 8px;
-  height: 18px;
+  bottom: 9px;
+  padding: 5px 8px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
-  border-radius: 6px;
+  border-radius: 7px;
   background: color-mix(in srgb, var(--text) 4%, transparent);
-}
-
-.d-caret {
-  top: 4px;
-  left: 6px;
-  width: 1px;
-  height: 9px;
-  background: color-mix(in srgb, var(--text) 40%, transparent);
-}
-
-.d-label {
-  left: 24px;
-  bottom: 12px;
-  font-size: 9px;
-  line-height: 1;
-  letter-spacing: .02em;
   color: var(--text-muted, var(--text-light, var(--text)));
 }
 
-/* 弹窗：贴着输入框上方，左右整条铺开 */
+/* 弹窗：紧贴输入框上方，横向铺开 */
 .d-popup {
+  position: absolute;
   left: 10px;
   right: 10px;
-  bottom: 32px;
-  padding: 6px;
+  bottom: 44px;
+  display: grid;
+  gap: 4px;
+  padding: 6px 7px;
   border: 1px solid var(--accent, #6b7a90);
   border-radius: 8px;
   background: color-mix(in srgb, var(--accent, #6b7a90) 10%, transparent);
 }
 
-/* 卡片：夹在对话里，明显窄一截，离输入框远 */
+/* 卡片：嵌在对话中间，左右各收一截 */
 .d-popup.is-card {
+  top: 34px;
+  bottom: auto;
   left: 34px;
   right: 34px;
-  top: 42px;
-  bottom: auto;
-  padding: 7px;
 }
 
-/* 面板顶栏：点 + 标题 + 两个按钮 + 折叠箭头 */
+/* 卡片那张预览走正常流：消息 → 卡片 → 消息，谁也不盖谁 */
+.st-demo.is-flow {
+  display: flex;
+  flex-direction: column;
+}
+
+.st-demo.is-flow .d-popup,
+.st-demo.is-flow .d-input {
+  position: static;
+}
+
+.st-demo.is-flow .d-input {
+  margin-top: auto;
+}
+
+.st-demo.is-flow .d-popup.is-card {
+  top: auto;
+  left: 24px;
+  right: 24px;
+}
+
+/* 弹窗顶栏：标记、标题、按钮、折叠箭头 */
 .d-bar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 6px;
+  gap: 5px;
 }
 
 .d-dot {
@@ -197,51 +193,67 @@ body {
   background: var(--accent, #6b7a90);
 }
 
-.d-txt {
-  width: 26px;
-  height: 4px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--text) 22%, transparent);
+.d-name {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-muted, var(--text-light, var(--text)));
 }
 
-.d-chip {
-  width: 16px;
-  height: 10px;
+.d-btn {
+  padding: 2px 6px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 16%, transparent));
-  border-radius: 3px;
+  border-radius: 5px;
+  font-style: normal;
+  color: var(--text);
 }
 
-.d-chip:last-of-type {
+.d-btn.is-first {
   margin-left: auto;
 }
 
+.d-btn.is-primary {
+  border-color: var(--accent, #6b7a90);
+  background: var(--accent, #6b7a90);
+  color: #fff;
+}
+
 .d-chev {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-left: 1px solid var(--text-muted, var(--text-light, var(--text)));
   border-bottom: 1px solid var(--text-muted, var(--text-light, var(--text)));
   transform: rotate(-45deg);
-  border-radius: 0;
-  margin: 0 2px 3px 2px;
+  margin-bottom: 2px;
 }
 
-/* 内容：问题条 + 选项条 */
-.d-rows {
-  display: grid;
-  gap: 4px;
-}
-
+/* 问题与选项 */
 .d-q {
-  height: 5px;
-  width: 72%;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--text) 26%, transparent);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .d-opt {
-  height: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 16%, transparent));
-  border-radius: 5px;
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.d-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  font-size: 8.5px;
+  font-style: normal;
+  color: var(--text-muted, var(--text-light, var(--text)));
 }
 
 /* ── 保存行 ── */

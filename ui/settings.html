@@ -12,7 +12,7 @@
   <div class="st-page">
 
     <h1 class="st-title">提问形态</h1>
-    <p class="st-hint">两种形态功能完全一样：都是问你一个问题，你点一下就继续。区别只在弹在哪里。</p>
+    <p class="st-hint">两种形态功能一致，区别仅在出现位置。请选择其一，后续提问将按所选形态呈现。</p>
 
     <div class="st-forms">
 
@@ -20,18 +20,24 @@
         <input class="st-radio" type="radio" name="form" value="panel">
         <span class="st-form-head">
           <b>弹窗</b>
-          <i>贴在输入框正上方，整条铺开，不打断上面的对话</i>
+          <i>附着于输入框上方，横向铺开</i>
         </span>
         <span class="st-demo" aria-hidden="true">
-          <span class="dm dm-1"></span>
-          <span class="dm dm-2"></span>
-          <span class="dm dm-3"></span>
+          <span class="dm dm-user">这次的提问用哪种样式？</span>
+          <span class="dm dm-bot">选项挂在下方，点选即可。</span>
           <span class="d-popup">
-            <span class="d-bar"><em class="d-dot"></em><em class="d-txt"></em><em class="d-chip"></em><em class="d-chip"></em><em class="d-chev"></em></span>
-            <span class="d-rows"><em class="d-q"></em><em class="d-opt"></em><em class="d-opt"></em></span>
+            <span class="d-bar">
+              <em class="d-dot"></em>
+              <b class="d-name">提问样式</b>
+              <em class="d-btn is-first">跳过</em>
+              <em class="d-btn is-primary">确认</em>
+              <em class="d-chev"></em>
+            </span>
+            <span class="d-q">提问用哪种形态？</span>
+            <span class="d-opt"><em class="d-num">1</em>弹窗</span>
+            <span class="d-opt"><em class="d-num">2</em>卡片</span>
           </span>
-          <span class="d-input"><em class="d-caret"></em></span>
-          <span class="d-label">输入框</span>
+          <span class="d-input">说点什么…</span>
         </span>
       </label>
 
@@ -39,17 +45,18 @@
         <input class="st-radio" type="radio" name="form" value="card">
         <span class="st-form-head">
           <b>卡片</b>
-          <i>夹在对话里，窄一些，不占地儿</i>
+          <i>嵌入对话流之中，宽度收窄</i>
         </span>
-        <span class="st-demo" aria-hidden="true">
-          <span class="dm dm-1"></span>
-          <span class="dm dm-2"></span>
+        <span class="st-demo is-flow" aria-hidden="true">
+          <span class="dm dm-user">这次的提问改用卡片吧。</span>
           <span class="d-popup is-card">
-            <span class="d-rows"><em class="d-q"></em><em class="d-opt"></em><em class="d-opt"></em><em class="d-opt"></em></span>
+            <span class="d-q">提问用哪种形态？</span>
+            <span class="d-opt"><em class="d-num">1</em>弹窗</span>
+            <span class="d-opt"><em class="d-num">2</em>卡片</span>
+            <span class="d-opt"><em class="d-num">3</em>都可以</span>
           </span>
-          <span class="dm dm-4"></span>
-          <span class="d-input"><em class="d-caret"></em></span>
-          <span class="d-label">输入框</span>
+          <span class="dm dm-bot">好，卡片已经放在这里。</span>
+          <span class="d-input">说点什么…</span>
         </span>
       </label>
 
