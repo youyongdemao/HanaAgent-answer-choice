@@ -164,6 +164,9 @@ export default defineApp(async (sdk) => {
         "template 传 \"ask-choice/assets/choice.card.html\"，" +
         "state 传 { uiLanguage, question, options, multi }，uiLanguage 取当前对话语言。" +
         "这个形态下不要调用 ask_choice 工具，那是弹窗形态的通道。" +
+        "如果 show_card 报找不到该模板（说明配套配方没装），别改用文字提问，" +
+        "改走弹窗通道：调 tool_call，server 传 \"ask-choice\"、tool 传 \"ask_choice\"、" +
+        "arguments 传 { question, options }。" +
         RULE_TAIL
       );
     }
