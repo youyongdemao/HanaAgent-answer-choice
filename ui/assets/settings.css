@@ -42,10 +42,67 @@ body {
 /* ── 形态单选 ── */
 .st-choice {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   padding: 11px 14px;
   cursor: pointer;
+}
+
+/* 缩略示意：把两种形态的差别画出来 */
+.st-demo {
+  position: relative;
+  flex: none;
+  margin-left: auto;
+  width: 96px;
+  height: 60px;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
+  border-radius: calc(9px * var(--corner-radius-scale, 1));
+  background: color-mix(in srgb, var(--bg, #fff) 55%, transparent);
+  overflow: hidden;
+}
+
+.st-demo em {
+  position: absolute;
+  display: block;
+  border-radius: 3px;
+}
+
+/* 一条消息 */
+.st-demo .d-msg {
+  left: 9px;
+  right: 28px;
+  top: 8px;
+  height: 5px;
+  background: color-mix(in srgb, var(--text) 18%, transparent);
+}
+
+/* 那块选择界面：编号方块 + 选项条 */
+.st-demo .d-block {
+  left: 9px;
+  right: 9px;
+  height: 20px;
+  border: 1px solid var(--accent, #6b7a90);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent, #6b7a90) 14%, transparent);
+}
+
+/* 面板贴着输入框；卡片浮在消息流里 */
+.st-demo.is-panel .d-block {
+  bottom: 22px;
+}
+
+.st-demo.is-card .d-block {
+  top: 19px;
+}
+
+/* 底部输入框 */
+.st-demo .d-input {
+  left: 9px;
+  right: 9px;
+  bottom: 6px;
+  height: 11px;
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
+  border-radius: 5px;
 }
 
 .st-choice + .st-choice {
