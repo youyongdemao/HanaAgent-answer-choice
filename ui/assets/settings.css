@@ -107,7 +107,7 @@ body {
   border-radius: 3px;
 }
 
-/* 对话里的两条消息 */
+/* 对话里的消息条 */
 .dm {
   left: 10px;
   height: 6px;
@@ -116,15 +116,25 @@ body {
 
 .dm-1 {
   top: 10px;
-  right: 48px;
+  right: 56px;
 }
 
 .dm-2 {
   top: 22px;
-  right: 76px;
+  right: 84px;
 }
 
-/* 底部输入框 */
+.dm-3 {
+  top: 34px;
+  right: 62px;
+}
+
+.dm-4 {
+  top: 120px;
+  right: 72px;
+}
+
+/* 底部输入框（带一个光标，好认） */
 .d-input {
   left: 10px;
   right: 10px;
@@ -132,10 +142,28 @@ body {
   height: 18px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
   border-radius: 6px;
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
-/* 面板：贴着输入框上方的一条 */
-.d-panel {
+.d-caret {
+  top: 4px;
+  left: 6px;
+  width: 1px;
+  height: 9px;
+  background: color-mix(in srgb, var(--text) 40%, transparent);
+}
+
+.d-label {
+  left: 24px;
+  bottom: 12px;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: .02em;
+  color: var(--text-muted, var(--text-light, var(--text)));
+}
+
+/* 弹窗：贴着输入框上方，左右整条铺开 */
+.d-popup {
   left: 10px;
   right: 10px;
   bottom: 32px;
@@ -145,15 +173,13 @@ body {
   background: color-mix(in srgb, var(--accent, #6b7a90) 10%, transparent);
 }
 
-/* 卡片：浮在消息流里 */
-.d-card {
-  left: 10px;
-  right: 44px;
-  top: 38px;
+/* 卡片：夹在对话里，明显窄一截，离输入框远 */
+.d-popup.is-card {
+  left: 34px;
+  right: 34px;
+  top: 42px;
+  bottom: auto;
   padding: 7px;
-  border: 1px solid var(--accent, #6b7a90);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--accent, #6b7a90) 10%, transparent);
 }
 
 /* 面板顶栏：点 + 标题 + 两个按钮 + 折叠箭头 */

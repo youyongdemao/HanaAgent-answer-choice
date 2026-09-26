@@ -26,7 +26,7 @@
             "title": "提问形态",
             "description": "需要你拿主意时，用哪一种界面来问",
             "enum": ["panel", "card"],
-            "enumNames": ["选择面板（输入框上方）", "选择卡片（对话里）"],
+            "enumNames": ["弹窗（输入框上方）", "卡片（对话里）"],
             "default": "panel"
           }
         }

@@ -12,39 +12,44 @@
   <div class="st-page">
 
     <h1 class="st-title">提问形态</h1>
-    <p class="st-hint">两种形态功能完全一样：都是「问你一个问题，你点一下就继续」。区别只在弹在哪里。选一个。</p>
+    <p class="st-hint">两种形态功能完全一样：都是问你一个问题，你点一下就继续。区别只在弹在哪里。</p>
 
     <div class="st-forms">
 
       <label class="st-form" data-form="panel">
         <input class="st-radio" type="radio" name="form" value="panel">
         <span class="st-form-head">
-          <b>选择面板</b>
-          <i>挂在输入框上方，不打断对话流</i>
+          <b>弹窗</b>
+          <i>贴在输入框正上方，整条铺开，不打断上面的对话</i>
         </span>
         <span class="st-demo" aria-hidden="true">
           <span class="dm dm-1"></span>
           <span class="dm dm-2"></span>
-          <span class="d-panel">
+          <span class="dm dm-3"></span>
+          <span class="d-popup">
             <span class="d-bar"><em class="d-dot"></em><em class="d-txt"></em><em class="d-chip"></em><em class="d-chip"></em><em class="d-chev"></em></span>
             <span class="d-rows"><em class="d-q"></em><em class="d-opt"></em><em class="d-opt"></em></span>
           </span>
-          <span class="d-input"></span>
+          <span class="d-input"><em class="d-caret"></em></span>
+          <span class="d-label">输入框</span>
         </span>
       </label>
 
       <label class="st-form" data-form="card">
         <input class="st-radio" type="radio" name="form" value="card">
         <span class="st-form-head">
-          <b>选择卡片</b>
-          <i>作为一张卡片出现在对话里</i>
+          <b>卡片</b>
+          <i>夹在对话里，窄一些，不占地儿</i>
         </span>
         <span class="st-demo" aria-hidden="true">
           <span class="dm dm-1"></span>
-          <span class="d-card">
+          <span class="dm dm-2"></span>
+          <span class="d-popup is-card">
             <span class="d-rows"><em class="d-q"></em><em class="d-opt"></em><em class="d-opt"></em><em class="d-opt"></em></span>
           </span>
-          <span class="d-input"></span>
+          <span class="dm dm-4"></span>
+          <span class="d-input"><em class="d-caret"></em></span>
+          <span class="d-label">输入框</span>
         </span>
       </label>
 
