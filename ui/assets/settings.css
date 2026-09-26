@@ -15,89 +15,52 @@ body {
 .st-page {
   max-width: 680px;
   margin: 0 auto;
-  padding: 20px 20px 40px;
+  padding: 18px 20px 40px;
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
-/* ── 抬头 ── */
-.st-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 4px 2px 0;
-}
-
-.st-mark {
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: calc(10px * var(--corner-radius-scale, 1));
-  background: var(--accent, #6b7a90);
-}
-
-.st-head h1 {
+.st-title {
   margin: 0;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -.01em;
 }
 
-.st-ver {
-  margin: 2px 0 0;
-  font-size: 11.5px;
-  color: var(--text-muted, var(--text-light, var(--text)));
-}
-
-/* ── 分块 ── */
-.st-block {
+.st-card {
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
-  border-radius: calc(14px * var(--corner-radius-scale, 1));
+  border-radius: calc(12px * var(--corner-radius-scale, 1));
   background: color-mix(in srgb, var(--bg-card, #fff) 62%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
-  padding: 14px 16px 16px;
+  overflow: hidden;
 }
 
-.st-title {
-  margin: 0 0 9px;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: .04em;
-  color: var(--text-muted, var(--text-light, var(--text)));
-}
-
-.st-text {
-  margin: 0;
+.st-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 14px;
   font-size: 13px;
-  line-height: 1.7;
+}
+
+.st-row + .st-row {
+  border-top: 1px solid color-mix(in srgb, var(--border, color-mix(in srgb, var(--text) 12%, transparent)) 75%, transparent);
+}
+
+.st-label {
+  flex: none;
+  color: var(--text);
+}
+
+.st-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted, var(--text-light, var(--text)));
 }
 
 .st-mono {
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   font-size: 12.5px;
-  word-break: break-all;
-}
-
-.st-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 10px;
-}
-
-.st-list li {
-  display: grid;
-  gap: 2px;
-}
-
-.st-list b {
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.st-list span {
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--text-muted, var(--text-light, var(--text)));
 }
