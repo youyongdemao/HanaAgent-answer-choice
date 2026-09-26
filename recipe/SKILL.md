@@ -1,10 +1,12 @@
 ---
 name: ask-choice
-description: "Mint a choice card that asks the reader to pick one of a few options and sends the answer back to the conversation so the Agent can continue. Use when a reply needs the reader to decide before the work can go on (which plan, which file, which direction), or when the user asks for a picker, an options card, a multiple-choice prompt, 选项, 选一个, 选择题, 让我选."
+description: "MANDATORY 硬触发：你每要提出一个问题，先自问「这题的答案能不能收成 2 到 8 个短句」（选哪个方向、要不要、走哪条路、先做哪块、A 还是 B、哪个更近、挑一个）——能，就不要用纯文字罗列问题和选项，必须把本卡片挂进对话（show_card，template 用 ask-choice/assets/choice.card.html）。用户说 选一个 / 选择题 / 给我选项 / 让我选 / 让我定 / 给我几个方向 时同样必须用。仅当答案需要长篇展开、只剩一个合理选项、或你自己能查清或决定时才用普通文字。Mint a choice card to ask the reader to pick one of a few options and send the answer back to the conversation; use whenever the next question in a reply has 2-8 enumerable short answers, or the user asks for a picker, an options card, a multiple-choice prompt, or to be given choices."
 profile: card-skill
 ---
 
 # 选项提问（Ask Choice）
+
+> **硬规则（先看这条）**：你在对话里每要提出一个问题，先问自己一句「这题的答案能不能收成 2 到 8 个短句？」能，就别用文字罗列问题和选项，直接把这张卡片挂出去。这条不需要用户提醒，也不分情绪场合，和「要不要联网搜索」是同一级的判断点。
 
 需要读者拿主意时，把候选项摆进回复里：点一个，选择回到对话，Agent 接着往下做。
 
