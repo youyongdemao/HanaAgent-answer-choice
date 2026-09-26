@@ -53,7 +53,131 @@ const TOOL_DESCRIPTION =
   "把选项挂到用户输入框上方，用户点选后答案会作为一条新消息回到对话里。" +
   "只有这几种情况才用普通回复：答案需要展开解释或写成一句话以上的长文；答案只有一个合理选项；你自己能查到或能直接决定的事。" +
   "调用后立刻返回「面板已挂出」的回执，用户点完你才会收到新消息，因此同一轮里不要重复调用。" +
-  "用户可以把提问形态切成「卡片」，那时改用 show_card 挂 ask-choice 卡片；当前该走哪条通道，以系统提示里的形态规则为准。";
+  "用户可以把提问形态切成「卡片」，那时本工具不挂面板，而是返回一份已填好内容的卡片 HTML，" +
+  "由你原样交给 show_card 的 code；当前该走哪条通道，以系统提示里的形态规则为准。";
+
+/** 卡片形态的界面文案，按语言取一套，只把用得上的那套写进 HTML。 */
+const CARD_TEXT = {
+  zh: { skip: "跳过", submit: "提交", custom: "或输入你的答案", empty: "先选一个，或者自己写一个答案。", chosen: "已选择：", skipped: "（跳过了这题）", multi: "可多选", picked: "已选 ", noHost: "此卡片需要 Hana 才能把选择交回对话。", failed: "没能把这题交回对话。" },
+  "zh-TW": { skip: "略過", submit: "送出", custom: "或輸入你的答案", empty: "先選一個，或者自己寫一個答案。", chosen: "已選擇：", skipped: "（略過了這題）", multi: "可多選", picked: "已選 ", noHost: "此卡片需要 Hana 才能把選擇交回對話。", failed: "沒能把這題交回對話。" },
+  en: { skip: "Skip", submit: "Submit", custom: "Or type an answer", empty: "Pick one, or write your own answer.", chosen: "Chosen: ", skipped: "(skipped)", multi: "Multiple picks allowed", picked: "picked ", noHost: "This card needs Hana to send your answer back.", failed: "Could not send the answer back." },
+  ja: { skip: "スキップ", submit: "送信", custom: "または回答を入力", empty: "1 つ選ぶか、回答を入力してください。", chosen: "選択：", skipped: "（スキップしました）", multi: "複数選択可", picked: "件選択 ", noHost: "回答を会話に返すには Hana が必要です。", failed: "回答を送信できませんでした。" },
+  ko: { skip: "건너뛰기", submit: "제출", custom: "또는 답을 입력", empty: "하나를 고르거나 답을 입력하세요.", chosen: "선택: ", skipped: "(건너뜀)", multi: "복수 선택 가능", picked: "개 선택 ", noHost: "답을 대화로 보내려면 Hana가 필요합니다.", failed: "답을 보내지 못했습니다." },
+};
+
+/**
+ * 生成卡片形态用的完整 HTML。
+ *
+ * 这条路径是为了不依赖 Recipe：show_card 的 template 只认全局安装的配方，装 App 装不来；
+ * 而 file 源拿不到 state（“state is only valid with template”），路径也不在允许根内。
+ * code 源没有这些限制，代价是内容要自带，所以数据在生成时直接写进文档。
+ */
+function renderCardHtml(input) {
+  const lang = Object.prototype.hasOwnProperty.call(CARD_TEXT, input.uiLanguage) ? input.uiLanguage : "zh";
+  const words = CARD_TEXT[lang];
+  const data = JSON.stringify({
+    q: input.question,
+    o: input.options,
+    m: input.multi === true,
+    c: input.allowCustom !== false,
+  }).replace(/</g, "\\u003c");
+  const labels = JSON.stringify({
+    sk: words.skip,
+    sb: words.submit,
+    cu: words.custom,
+    em: words.empty,
+    ch: words.chosen,
+    skp: words.skipped,
+    mu: words.multi,
+    pk: words.picked,
+    nh: words.noHost,
+    fa: words.failed,
+  }).replace(/</g, "\\u003c");
+  return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ask choice</title>
+</head>
+<body>
+<script type="application/json" data-card-manifest>{"spec":"1.0","display":{"preferredWidthPx":520}}</script>
+<style>
+.r{font-family:var(--font-ui);color:var(--text);max-width:460px;margin:0 auto;padding:38px 2px 12px}
+.q{margin:0 0 12px;font-size:15px;font-weight:600;line-height:1.5;word-break:break-word}
+.o{display:flex;flex-direction:column;gap:6px}
+.op{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border:1px solid var(--border);border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12.5px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
+.op:hover{background:color-mix(in srgb,var(--text) 6%,transparent)}
+.op.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.n{flex:none;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:calc(6px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--text) 9%,transparent);font-size:10.5px;color:var(--text-muted)}
+.op.on .n{background:var(--accent);color:#fff}
+.i{width:100%;margin-top:6px;padding:9px 10px;border:1px solid var(--border);border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12.5px}
+.i::placeholder{color:var(--text-muted)}
+.f{display:flex;align-items:center;gap:12px;margin-top:12px}
+.h{margin:0;font-size:11.5px;line-height:1.4;color:var(--text-muted)}
+.h:empty{display:none}
+.a{display:flex;gap:6px;flex:none;margin-left:auto}
+.bt{padding:6px 14px;border:1px solid var(--border);border-radius:calc(9px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12.5px;line-height:1.5;cursor:pointer;transition:background .16s ease}
+.bt:hover{background:color-mix(in srgb,var(--text) 7%,transparent)}
+.bt.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.bt.p:hover{background:var(--accent-hover)}
+.res{display:none;align-items:baseline;gap:9px;margin:0;font-size:13px;line-height:1.6}
+.tk{color:var(--green)}
+.r.done .o,.r.done .i,.r.done .f{display:none}
+.r.done .res{display:flex}
+</style>
+<div class="r" id="r">
+<p class="q" id="q"></p>
+<div class="o" id="o"></div>
+<input class="i" id="i" type="text">
+<div class="f">
+<p class="h" id="h"></p>
+<div class="a">
+<button type="button" class="bt" id="s"></button>
+<button type="button" class="bt p" id="k"></button>
+</div>
+</div>
+<p class="res" id="e"><span class="tk" id="tk"></span><span id="et"></span></p>
+</div>
+<script>
+(function(){
+var D=${data},L=${labels},api=window.card;
+var r=document.getElementById("r"),ob=document.getElementById("o"),hn=document.getElementById("h"),ie=document.getElementById("i"),sb=document.getElementById("s"),kb=document.getElementById("k");
+var picked=[],done=false,multi=D.m,allowCustom=D.c;
+document.getElementById("q").textContent=D.q;
+sb.textContent=L.sb;kb.textContent=L.sk;
+if(allowCustom){ie.setAttribute("placeholder",L.cu);}else{ie.hidden=true;}
+hn.textContent=multi?L.mu:"";
+function paint(){for(var i=0;i<ob.children.length;i++){var b=ob.children[i],on=picked.indexOf(b.getAttribute("data-l"))!==-1;b.className=on?"op on":"op";b.setAttribute("aria-pressed",on?"true":"false");}}
+if(allowCustom){ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hn.textContent=multi?(picked.length?L.pk+picked.length:L.mu):"";});}
+D.o.forEach(function(label,index){
+var b=document.createElement("button");b.type="button";b.className="op";b.setAttribute("data-l",label);b.setAttribute("aria-pressed","false");
+var n=document.createElement("span");n.className="n";n.setAttribute("aria-hidden","true");n.textContent=String(index+1);
+var t=document.createElement("span");t.textContent=label;
+b.appendChild(n);b.appendChild(t);
+b.addEventListener("click",function(){
+if(done)return;
+if(multi){var at=picked.indexOf(label);if(at===-1){picked.push(label);}else{picked.splice(at,1);}hn.textContent=picked.length?L.pk+picked.length:L.mu;paint();return;}
+picked=[label];ie.value="";paint();send("answer",{choice:label},"answer",label);
+});
+ob.appendChild(b);
+});
+function fin(kind,choice){done=true;r.className="r done";document.getElementById("tk").textContent=kind==="skip"?"":"✓";document.getElementById("et").textContent=kind==="skip"?L.skp:L.ch+choice;}
+function send(name,payload,kind,choice){
+if(!api||typeof api.capabilities!=="function"||typeof api.emit!=="function"){hn.textContent=L.nh;return;}
+api.capabilities().then(function(env){
+var res=env&&env.ok===true?env.result:null,caps=res&&res.capabilities?res.capabilities:null,word=caps&&typeof caps.emit==="string"?caps.emit:"";
+if(word!=="available"&&word!=="local_fallback"){hn.textContent=L.nh;return;}
+return api.emit(name,payload).then(function(reply){if(reply&&reply.ok===true){fin(kind,choice);}else{hn.textContent=L.fa;}});
+}).catch(function(){hn.textContent=L.fa;});
+}
+kb.addEventListener("click",function(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hn.textContent=L.em;return;}send("answer",{choice:v},"answer",v);});
+sb.addEventListener("click",function(){if(done)return;send("skip",{},"skip","");});
+})();
+</script>
+</body>
+</html>`;
+}
 
 /**
  * 从会话路径解出 sessionId。
@@ -151,8 +275,9 @@ export default defineApp(async (sdk) => {
 
   /**
    * 按当前形态拼这一轮要注入的规则。
-   * form 由调用方每轮现读传进来，不用启动时那份快照——否则用户在设置页切换形态后，
-   * 注入的规则还是旧的，他选的东西要重启才生效。
+   * form 在 App 启动时读一次就定格，所以用户在设置页切换形态后要重启宿主才生效——
+   * 设置页的提示跟这句话对齐。不改成每轮现读，是因为工具面与会话快照都是启动时定下的，
+   * 行为跟提示咬死比省一次重启更要紧。
    */
   function buildRule(form) {
     if (form === FORM_CARD) {
@@ -160,13 +285,13 @@ export default defineApp(async (sdk) => {
         RULE_MARK +
         "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂出来，" +
         "不要在正文里罗列问题让用户自己找答案。" +
-        "当前形态是「卡片」：用内置工具 show_card 挂一张 ask-choice 卡片，" +
-        "template 传 \"ask-choice/assets/choice.card.html\"，" +
-        "state 传 { uiLanguage, question, options, multi }，uiLanguage 取当前对话语言。" +
-        "这个形态下不要调用 ask_choice 工具，那是弹窗形态的通道。" +
-        "如果 show_card 报找不到该模板（说明配套配方没装），别改用文字提问，" +
-        "改走弹窗通道：调 tool_call，server 传 \"ask-choice\"、tool 传 \"ask_choice\"、" +
-        "arguments 传 { question, options }。" +
+        "当前形态是「卡片」，两步走：" +
+        "① 调 tool_call，server 传 \"ask-choice\"、tool 传 \"ask_choice\"、" +
+        "arguments 传 { question, options, uiLanguage }（需要多选再加 multi: true），" +
+        "它会返回一份内容已填好的完整卡片 HTML；" +
+        "② 把返回的文本逐字原样交给 show_card 的 code 参数，title 自己起一个。" +
+        "不要改动那份 HTML、不要精简、不要另写包装，也不要改回 template + state 的老写法：" +
+        "卡片内容已经写在 HTML 里了。" +
         RULE_TAIL
       );
     }
@@ -182,11 +307,13 @@ export default defineApp(async (sdk) => {
     );
   }
 
+  /** 启动时定格的那份规则，每轮原样注入。 */
+  const RULE_TEXT = buildRule(form);
+
   await sdk.hooks.onDecision("agent/before-start", async (invocation) => {
     const base = typeof invocation?.systemPrompt === "string" ? invocation.systemPrompt : "";
     if (base.includes(RULE_MARK)) return undefined; // 已经在里面了，不再叠加
-    const rule = buildRule(await currentForm());
-    return { systemPrompt: base ? `${base}\n\n${rule}` : rule };
+    return { systemPrompt: base ? `${base}\n\n${RULE_TEXT}` : RULE_TEXT };
   });
 
   await sdk.routes.register((app) => {
@@ -291,13 +418,11 @@ export default defineApp(async (sdk) => {
         allow_custom: { type: "boolean", description: "是否允许用户自己写一个答案，默认允许。" },
         multi: { type: "boolean", description: "是否允许多选，默认单选。" },
         title: { type: "string", description: "面板标题，省略时用「需要你定一下」。" },
+        uiLanguage: { type: "string", description: "卡片形态的界面语言：zh / zh-TW / en / ja / ko，取当前对话语言，省略按 zh。" },
       },
       required: ["question", "options"],
     },
-    execute: async ({ question, options, allow_custom, multi, title, context } = {}) => {
-      const sessionPath = typeof context?.sessionPath === "string" ? context.sessionPath : "";
-      if (!sessionPath) throw new Error("ask_choice 只能在会话里调用（这次调用没带 sessionPath）。");
-
+    execute: async ({ question, options, allow_custom, multi, title, uiLanguage, context } = {}) => {
       const text = typeof question === "string" ? question.trim() : "";
       if (!text) throw new Error("ask_choice 需要 question。");
       const list = normalizeOptions(options);
@@ -305,6 +430,31 @@ export default defineApp(async (sdk) => {
 
       const allowCustom = allow_custom !== false;
       const isMulti = multi === true;
+
+      // 卡片形态不挂面板：交出一份内容已填好的 HTML，由模型原样交给 show_card 的 code。
+      // 这样卡片形态就不依赖 Recipe——模板只认全局安装的配方，App 装不来；
+      // 而 file 源拿不到 state，路径也不在允许根内。code 源两条都不占。
+      if (form === FORM_CARD) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: renderCardHtml({
+                uiLanguage: typeof uiLanguage === "string" ? uiLanguage : "zh",
+                question: text,
+                options: list,
+                multi: isMulti,
+                allowCustom,
+              }),
+            },
+          ],
+          details: { form: FORM_CARD, options: list, multi: isMulti, allowCustom },
+        };
+      }
+
+      const sessionPath = typeof context?.sessionPath === "string" ? context.sessionPath : "";
+      if (!sessionPath) throw new Error("ask_choice 只能在会话里调用（这次调用没带 sessionPath）。");
+
       const panelTitle = (typeof title === "string" && title.trim() ? title.trim() : "需要你定一下").slice(0, 60);
 
       let sessionId = "";
