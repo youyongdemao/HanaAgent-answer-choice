@@ -52,9 +52,8 @@ const PANEL_DESCRIPTION =
 /** 卡片形态下工具本身的描述：引导改走 show_card */
 const CARD_DESCRIPTION =
   "用户把提问形态设成了「卡片」：需要用户拿主意时不要调用本工具，改用 show_card 把卡片挂进对话——" +
-  "show_card({ template: \"ask-choice/assets/choice.card.html\", state: { uiLanguage, title, question, options, multi } })，" +
-  "用户点选后选择会作为一条新消息回到对话里。卡片适合顺带一问；当这件事必须停下来等用户回答不可时，仍然可以调用本工具把面板挂到输入框上方。" +
-  "判断标准不变：答案能列成 2–8 个短语才问，需要长篇展开的用文字问。";
+  "show_card({ template: \"ask-choice/assets/choice.card.html\", state: { uiLanguage, title, question, options, multi, allowCustom } })，" +
+  "用户点选后选择会作为一条新消息回到对话里。判断标准不变：答案能列成 2–8 个短语才问，需要长篇展开的用文字问。";
 
 function describeFor(form) {
   return form === FORM_CARD ? CARD_DESCRIPTION : PANEL_DESCRIPTION;
