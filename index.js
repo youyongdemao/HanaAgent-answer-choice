@@ -77,6 +77,7 @@ function renderCardHtml(input) {
   const words = CARD_TEXT[lang];
   const data = JSON.stringify({
     q: input.question,
+    t: input.title,
     o: input.options,
     m: input.multi === true,
     c: input.allowCustom !== false,
@@ -103,76 +104,97 @@ function renderCardHtml(input) {
 <body>
 <script type="application/json" data-card-manifest>{"spec":"1.0","display":{"preferredWidthPx":520}}</script>
 <style>
-.r{font-family:var(--font-ui);color:var(--text);max-width:460px;margin:0 auto;padding:38px 2px 12px}
-.q{margin:0 0 12px;font-size:15px;font-weight:600;line-height:1.5;word-break:break-word}
-.o{display:flex;flex-direction:column;gap:6px}
-.op{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border:1px solid var(--border);border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12.5px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
-.op:hover{background:color-mix(in srgb,var(--text) 6%,transparent)}
-.op.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
-.n{flex:none;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:calc(6px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--text) 9%,transparent);font-size:10.5px;color:var(--text-muted)}
-.op.on .n{background:var(--accent);color:#fff}
-.i{width:100%;margin-top:6px;padding:9px 10px;border:1px solid var(--border);border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12.5px}
-.i::placeholder{color:var(--text-muted)}
-.f{display:flex;align-items:center;gap:12px;margin-top:12px}
-.h{margin:0;font-size:11.5px;line-height:1.4;color:var(--text-muted)}
-.h:empty{display:none}
-.a{display:flex;gap:6px;flex:none;margin-left:auto}
-.bt{padding:6px 14px;border:1px solid var(--border);border-radius:calc(9px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12.5px;line-height:1.5;cursor:pointer;transition:background .16s ease}
-.bt:hover{background:color-mix(in srgb,var(--text) 7%,transparent)}
-.bt.p{background:var(--accent);border-color:var(--accent);color:#fff}
-.bt.p:hover{background:var(--accent-hover)}
-.res{display:none;align-items:baseline;gap:9px;margin:0;font-size:13px;line-height:1.6}
-.tk{color:var(--green)}
-.r.done .o,.r.done .i,.r.done .f{display:none}
-.r.done .res{display:flex}
+html,body{margin:0;background:transparent}
+body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif);color:var(--text)}
+.ac{padding:38px 2px 12px;max-width:460px;margin:0 auto}
+.ac-box{display:flex;flex-direction:column;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:calc(14px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--bg-card,#fff) 72%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+@supports ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){.ac-box{-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}}
+.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:10px 10px 0 12px;flex:0 0 auto;background:transparent}
+.ac-dot{flex:none;width:7px;height:7px;border-radius:2px;background:var(--accent)}
+.ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
+.ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
+.ac-body{display:grid;gap:8px;padding:0 12px 10px}
+.ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
+.ac-options{display:flex;flex-direction:column;gap:6px}
+.ac-opt{display:flex;align-items:center;gap:11px;min-width:0;appearance:none;text-align:left;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
+.ac-opt:hover{background:color-mix(in srgb,var(--text) 6%,transparent)}
+.ac-opt.is-on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.ac-num{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:calc(6px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--text) 9%,transparent);font-size:11px;line-height:1;color:var(--text-light,var(--text))}
+.ac-opt.is-on .ac-num{background:var(--accent);color:#fff}
+.ac-label{min-width:0;overflow-wrap:anywhere}
+.ac-custom-row{display:flex}
+.ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
+.ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
+.ac-custom::placeholder{color:var(--text-light,var(--text));opacity:.65}
+.ac-hint{margin:0;font-size:11px;line-height:1.4;color:var(--danger,#d9534f)}
+.ac-hint:empty{display:none}
+.ac-done{margin:0;font-size:12.5px;line-height:1.5;color:var(--text)}
+.ac-btn{padding:5px 12px;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:calc(8px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12px;line-height:1.5;cursor:pointer;transition:background .16s ease}
+.ac-btn:hover{background:color-mix(in srgb,var(--text) 7%,transparent)}
+.ac-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.ac-btn.primary:hover{background:var(--accent-hover)}
+.ac-btn[disabled]{opacity:.5;cursor:default}
+.ac-box.is-done .ac-options,.ac-box.is-done .ac-custom-row,.ac-box.is-done .ac-tools{display:none}
 </style>
-<div class="r" id="r">
-<p class="q" id="q"></p>
-<div class="o" id="o"></div>
-<input class="i" id="i" type="text">
-<div class="f">
-<p class="h" id="h"></p>
-<div class="a">
-<button type="button" class="bt" id="s"></button>
-<button type="button" class="bt p" id="k"></button>
+<div class="ac">
+<section class="ac-box" id="box">
+<p class="ac-bar">
+<span class="ac-dot" aria-hidden="true"></span>
+<span class="ac-head" id="head"></span>
+<span class="ac-tag" id="tag" hidden></span>
+<span class="ac-tools" id="tools">
+<button type="button" class="ac-btn" id="skip"></button>
+<button type="button" class="ac-btn primary" id="confirm"></button>
+</span>
+</p>
+<div class="ac-body">
+<p class="ac-question" id="q"></p>
+<div class="ac-options" id="o"></div>
+<div class="ac-custom-row" id="crow"><input class="ac-custom" id="custom" type="text" spellcheck="false"></div>
+<p class="ac-hint" id="h"></p>
+<p class="ac-done" id="done" hidden></p>
 </div>
-</div>
-<p class="res" id="e"><span class="tk" id="tk"></span><span id="et"></span></p>
+</section>
 </div>
 <script>
 (function(){
 var D=${data},L=${labels},api=window.card;
-var r=document.getElementById("r"),ob=document.getElementById("o"),hn=document.getElementById("h"),ie=document.getElementById("i"),sb=document.getElementById("s"),kb=document.getElementById("k");
+var box=document.getElementById("box"),ob=document.getElementById("o"),hn=document.getElementById("h"),ie=document.getElementById("custom");
+var skb=document.getElementById("skip"),cfb=document.getElementById("confirm"),tg=document.getElementById("tag"),crow=document.getElementById("crow"),dn=document.getElementById("done"),tl=document.getElementById("tools");
 var picked=[],done=false,multi=D.m,allowCustom=D.c;
 document.getElementById("q").textContent=D.q;
-sb.textContent=L.sb;kb.textContent=L.sk;
-if(allowCustom){ie.setAttribute("placeholder",L.cu);}else{ie.hidden=true;}
-hn.textContent=multi?L.mu:"";
-function paint(){for(var i=0;i<ob.children.length;i++){var b=ob.children[i],on=picked.indexOf(b.getAttribute("data-l"))!==-1;b.className=on?"op on":"op";b.setAttribute("aria-pressed",on?"true":"false");}}
-if(allowCustom){ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hn.textContent=multi?(picked.length?L.pk+picked.length:L.mu):"";});}
+document.getElementById("head").textContent=D.t?D.t:"";
+skb.textContent=L.sk;cfb.textContent=L.sb;
+if(allowCustom){ie.setAttribute("placeholder",L.cu);}else{crow.hidden=true;}
+if(multi){tg.hidden=false;tg.textContent=L.mu;}
+if(!multi&&!allowCustom){tl.removeChild(cfb);}
+function paint(){for(var i=0;i<ob.children.length;i++){var b=ob.children[i],on=picked.indexOf(b.getAttribute("data-l"))!==-1;b.className="ac-opt"+(on?" is-on":"");b.setAttribute("aria-pressed",on?"true":"false");}if(multi){tg.textContent=picked.length?L.pk+picked.length:L.mu;}}
+function hint(x){hn.textContent=x;}
+function fin(kind,choice){done=true;box.className="ac-box is-done";dn.hidden=false;dn.textContent=kind==="skip"?L.skp:L.ch+choice;}
+function send(name,payload,kind,choice){
+if(!api||typeof api.capabilities!=="function"||typeof api.emit!=="function"){hint(L.nh);return;}
+api.capabilities().then(function(env){
+var res=env&&env.ok===true?env.result:null,caps=res&&res.capabilities?res.capabilities:null,word=caps&&typeof caps.emit==="string"?caps.emit:"";
+if(word!=="available"&&word!=="local_fallback"){hint(L.nh);return;}
+return api.emit(name,payload).then(function(reply){if(reply&&reply.ok===true){fin(kind,choice);}else{hint(L.fa);}});
+}).catch(function(){hint(L.fa);});
+}
 D.o.forEach(function(label,index){
-var b=document.createElement("button");b.type="button";b.className="op";b.setAttribute("data-l",label);b.setAttribute("aria-pressed","false");
-var n=document.createElement("span");n.className="n";n.setAttribute("aria-hidden","true");n.textContent=String(index+1);
-var t=document.createElement("span");t.textContent=label;
-b.appendChild(n);b.appendChild(t);
+var b=document.createElement("button");b.type="button";b.className="ac-opt";b.setAttribute("data-l",label);b.setAttribute("aria-pressed","false");
+var n=document.createElement("span");n.className="ac-num";n.setAttribute("aria-hidden","true");n.textContent=String(index+1);
+var tx=document.createElement("span");tx.className="ac-label";tx.textContent=label;
+b.appendChild(n);b.appendChild(tx);
 b.addEventListener("click",function(){
 if(done)return;
-if(multi){var at=picked.indexOf(label);if(at===-1){picked.push(label);}else{picked.splice(at,1);}hn.textContent=picked.length?L.pk+picked.length:L.mu;paint();return;}
+if(multi){var at=picked.indexOf(label);if(at===-1){picked.push(label);}else{picked.splice(at,1);}paint();hint("");return;}
 picked=[label];ie.value="";paint();send("answer",{choice:label},"answer",label);
 });
 ob.appendChild(b);
 });
-function fin(kind,choice){done=true;r.className="r done";document.getElementById("tk").textContent=kind==="skip"?"":"✓";document.getElementById("et").textContent=kind==="skip"?L.skp:L.ch+choice;}
-function send(name,payload,kind,choice){
-if(!api||typeof api.capabilities!=="function"||typeof api.emit!=="function"){hn.textContent=L.nh;return;}
-api.capabilities().then(function(env){
-var res=env&&env.ok===true?env.result:null,caps=res&&res.capabilities?res.capabilities:null,word=caps&&typeof caps.emit==="string"?caps.emit:"";
-if(word!=="available"&&word!=="local_fallback"){hn.textContent=L.nh;return;}
-return api.emit(name,payload).then(function(reply){if(reply&&reply.ok===true){fin(kind,choice);}else{hn.textContent=L.fa;}});
-}).catch(function(){hn.textContent=L.fa;});
-}
-kb.addEventListener("click",function(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hn.textContent=L.em;return;}send("answer",{choice:v},"answer",v);});
-sb.addEventListener("click",function(){if(done)return;send("skip",{},"skip","");});
+if(allowCustom){ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});}
+cfb.addEventListener("click",function(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hint(L.em);return;}send("answer",{choice:v},"answer",v);});
+skb.addEventListener("click",function(){if(done)return;send("skip",{},"skip","");});
 })();
 </script>
 </body>
@@ -217,15 +239,40 @@ export default defineApp(async (sdk) => {
   /** 当前的工具注册句柄：形态变了就注销重注册，不用等 App 重载 */
   let askTool = null;
 
+  /**
+   * 读当前形态。
+   *
+   * 存在 `sdk.storage.global`，不放在 manifest 的 settings schema 里：这个宿主版本上
+   * `ctx.config` 写进去的值读不回来——保存会把值落进 preferences.json 的
+   * settings_contributions，读取却一律返回空（get 给 null、getAll 给 {}），
+   * 而 storage 落在本 App 自己的 app-data/<id>/storage/global.json，读写都稳。
+   * 旧值曾写在 config 里，所以第一次读不到 storage 时顺手迁一次。
+   */
+  async function readForm() {
+    try {
+      const stored = await sdk.storage.global.get("form", null);
+      if (stored === FORM_CARD || stored === FORM_PANEL) return stored;
+    } catch (error) {
+      await sdk.logger.warn(`ask-choice: 读 storage 失败 ${errorText(error)}`);
+    }
+    try {
+      const legacy = await sdk.config.get("form");
+      if (legacy === FORM_CARD || legacy === FORM_PANEL) {
+        await sdk.storage.global.set("form", legacy);
+        await sdk.logger.info(`ask-choice: 形态从 config 迁移到 storage = ${legacy}`);
+        return legacy;
+      }
+    } catch {
+      /* 老通道读不到就算了，不拦启动 */
+    }
+    return null;
+  }
+
   /** 读当前形态设置；读不到就当面板。 */
   async function currentForm() {
-    try {
-      const value = await sdk.config.get("form");
-      return value === FORM_CARD ? FORM_CARD : FORM_PANEL;
-    } catch (error) {
-      await sdk.logger.warn(`ask-choice: 读设置失败 ${errorText(error)}`);
-      return FORM_PANEL;
-    }
+    const stored = await readForm();
+    await sdk.logger.info(`ask-choice: 形态读取 = ${JSON.stringify(stored)}`);
+    return stored === FORM_CARD ? FORM_CARD : FORM_PANEL;
   }
 
   const form = await currentForm();
@@ -332,8 +379,10 @@ export default defineApp(async (sdk) => {
       }
       const value = body && body.form === FORM_CARD ? FORM_CARD : FORM_PANEL;
       try {
-        await sdk.config.set("form", value);
+        await sdk.storage.global.set("form", value);
+        await sdk.logger.info(`ask-choice: 形态已保存 = ${value}`);
       } catch (error) {
+        await sdk.logger.warn(`ask-choice: 形态保存失败 = ${errorText(error)}`);
         return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
       }
       // needsReload 恒为 true：设置页按「需重启生效」提示。
@@ -441,6 +490,7 @@ export default defineApp(async (sdk) => {
               type: "text",
               text: renderCardHtml({
                 uiLanguage: typeof uiLanguage === "string" ? uiLanguage : "zh",
+                title: typeof title === "string" ? title.trim() : "",
                 question: text,
                 options: list,
                 multi: isMulti,

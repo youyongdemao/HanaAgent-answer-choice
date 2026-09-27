@@ -23,6 +23,8 @@
   `server` 传 `ask-choice`、`tool` 传 `ask_choice`，不必先 `tool_search`。
 - **卡片**：同一支工具在卡片形态下不挂面板，而是返回一份内容已填好的完整 HTML；模型拿到后
   原样交给内置工具 `show_card` 的 `code` 参数。整条路不依赖任何 Recipe，装完 App 就能用。
+  卡片的界面照面板那套做：同一个顶栏（圆点 + 标题 + 按钮组）、跳过在左确认在右、单选点一下即提交，
+  两边观感一致。
 
 为什么卡片不走 `show_card` 的 `template`：那条路只认全局安装的配方（模板校验收据也在全局配方
 目录），而 App 包里的 `recipes/` 只服务 App 自己创建的 Agent，宿主不拿它解析模板。`file` 源也不行：
@@ -84,6 +86,14 @@ Agent 侧无需额外说明，工具描述里已经写清了适用场景。参�
 两种形态都不需要额外装配方或资源。安装时的权限授予在首次 `apply()` 前就生效，所以用户在
 安装确认卡上一次性允许的话，装完即刻可用。
 
+## 形态值存在哪
+
+存在 `sdk.storage.global`（落在 `app-data/ask-choice/storage/global.json`），**不走** manifest 的
+`contributes.settings` schema。原因是一个宿主 bug：通过 `ctx.config` 保存的形态会正常写进
+`user/preferences.json` 的 `settings_contributions`，但 App 再读时 `get` 返回 `null`、`getAll`
+返回 `{}`，写进去读不回来。storage 没有这个问题，prompt-optimizer 等 App 一直用它。
+旧值曾写在 config 里，所以首次读不到 storage 时会顺手迁一次。
+
 ## 结构
 
 ```
@@ -101,7 +111,7 @@ sdk/                 打包随附的 App SDK
 - 宿主自带的确认按钮在非阻塞面板上不生效（它要求面板带 `confirmId`），所以确认按钮由面板自绘
 - 每个会话同时最多 32 个面板，整个宿主 512 个（宿主限制）
 - App 重载后工具 RPC 通道可能不会自动重建，需要刷新界面或重启宿主
-- 卡片形态的 HTML 由本 App 现场生成（约 6 KB），模型要把它原样搬给 `show_card` 的 `code`。
+- 卡片形态的 HTML 由本 App 现场生成（约 8 KB），模型要把它原样搬给 `show_card` 的 `code`。
   这段文本偶尔被模型改动会让卡片渲染失败，重问一次即可
 
 ## 许可
