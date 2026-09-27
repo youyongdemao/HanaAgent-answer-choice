@@ -109,8 +109,8 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac{padding:38px 2px 12px;max-width:460px;margin:0 auto}
 .ac-box{display:flex;flex-direction:column;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:calc(14px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--bg-card,#fff) 72%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
 @supports ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){.ac-box{-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}}
-.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:10px 10px 0 12px;flex:0 0 auto;background:transparent}
-.ac-dot{flex:none;width:7px;height:7px;border-radius:2px;background:var(--accent)}
+.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:10px 10px 0 12px;flex:0 0 auto;background:transparent;border-radius:calc(13px * var(--corner-radius-scale,1)) calc(13px * var(--corner-radius-scale,1)) 0 0}
+.ac-dot{flex:none;width:7px;height:7px;border-radius:3px;background:var(--accent)}
 .ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
 .ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
