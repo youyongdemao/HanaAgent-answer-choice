@@ -105,9 +105,10 @@ function renderCardHtml(input) {
 <script type="application/json" data-card-manifest>{"spec":"1.0","display":{"preferredWidthPx":520}}</script>
 <style>
 html,body{margin:0;background:transparent}
+*,*::before,*::after{box-sizing:border-box}
 body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif);color:var(--text)}
-.ac{max-width:520px;margin:0 auto}
-.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:2px 0 0;flex:0 0 auto;background:transparent}
+.ac{padding:14px 16px 12px;max-width:520px;margin:0 auto}
+.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:0;flex:0 0 auto;background:transparent}
 .ac-dot{flex:none;width:7px;height:7px;border-radius:3px;background:var(--accent)}
 .ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
