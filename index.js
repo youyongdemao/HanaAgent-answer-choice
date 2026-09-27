@@ -106,15 +106,13 @@ function renderCardHtml(input) {
 <style>
 html,body{margin:0;background:transparent}
 body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif);color:var(--text)}
-.ac{padding:38px 2px 12px;max-width:460px;margin:0 auto}
-.ac-box{display:flex;flex-direction:column;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:calc(14px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--bg-card,#fff) 72%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-@supports ((-webkit-backdrop-filter:blur(2px)) or (backdrop-filter:blur(2px))){.ac-box{-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px)}}
-.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:10px 10px 0 12px;flex:0 0 auto;background:transparent;border-radius:calc(13px * var(--corner-radius-scale,1)) calc(13px * var(--corner-radius-scale,1)) 0 0}
+.ac{max-width:520px;margin:0 auto}
+.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:2px 0 0;flex:0 0 auto;background:transparent}
 .ac-dot{flex:none;width:7px;height:7px;border-radius:3px;background:var(--accent)}
 .ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
 .ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
-.ac-body{display:grid;gap:8px;padding:0 12px 10px}
+.ac-body{display:grid;gap:8px;padding:8px 0 2px}
 .ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
 .ac-options{display:flex;flex-direction:column;gap:6px}
 .ac-opt{display:flex;align-items:center;gap:11px;min-width:0;appearance:none;text-align:left;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
@@ -135,10 +133,9 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .ac-btn.primary:hover{background:var(--accent-hover)}
 .ac-btn[disabled]{opacity:.5;cursor:default}
-.ac-box.is-done .ac-options,.ac-box.is-done .ac-custom-row,.ac-box.is-done .ac-tools{display:none}
+.ac.is-done .ac-options,.ac.is-done .ac-custom-row,.ac.is-done .ac-tools{display:none}
 </style>
-<div class="ac">
-<section class="ac-box" id="box">
+<div class="ac" id="box">
 <p class="ac-bar">
 <span class="ac-dot" aria-hidden="true"></span>
 <span class="ac-head" id="head"></span>
@@ -155,7 +152,6 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 <p class="ac-hint" id="h"></p>
 <p class="ac-done" id="done" hidden></p>
 </div>
-</section>
 </div>
 <script>
 (function(){
@@ -171,7 +167,7 @@ if(multi){tg.hidden=false;tg.textContent=L.mu;}
 if(!multi&&!allowCustom){tl.removeChild(cfb);}
 function paint(){for(var i=0;i<ob.children.length;i++){var b=ob.children[i],on=picked.indexOf(b.getAttribute("data-l"))!==-1;b.className="ac-opt"+(on?" is-on":"");b.setAttribute("aria-pressed",on?"true":"false");}if(multi){tg.textContent=picked.length?L.pk+picked.length:L.mu;}}
 function hint(x){hn.textContent=x;}
-function fin(kind,choice){done=true;box.className="ac-box is-done";dn.hidden=false;dn.textContent=kind==="skip"?L.skp:L.ch+choice;}
+function fin(kind,choice){done=true;box.className="ac is-done";dn.hidden=false;dn.textContent=kind==="skip"?L.skp:L.ch+choice;}
 function send(name,payload,kind,choice){
 if(!api||typeof api.capabilities!=="function"||typeof api.emit!=="function"){hint(L.nh);return;}
 api.capabilities().then(function(env){
