@@ -116,20 +116,20 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-body{display:grid;gap:8px;padding:8px 0 2px}
 .ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
 .ac-options{display:flex;flex-direction:column;gap:6px}
-.ac-opt{display:flex;align-items:center;gap:11px;min-width:0;appearance:none;text-align:left;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
+.ac-opt{display:flex;align-items:center;gap:11px;min-width:0;appearance:none;text-align:left;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
 .ac-opt:hover{background:color-mix(in srgb,var(--text) 6%,transparent)}
 .ac-opt.is-on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
-.ac-num{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:calc(6px * var(--corner-radius-scale,1));background:color-mix(in srgb,var(--text) 9%,transparent);font-size:11px;line-height:1;color:var(--text-light,var(--text))}
+.ac-num{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:min(calc(6px * var(--corner-radius-scale,1)),5px);background:color-mix(in srgb,var(--text) 9%,transparent);font-size:11px;line-height:1;color:var(--text-light,var(--text))}
 .ac-opt.is-on .ac-num{background:var(--accent);color:#fff}
 .ac-label{min-width:0;overflow-wrap:anywhere}
 .ac-custom-row{display:flex}
-.ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:calc(12px * var(--corner-radius-scale,1));background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
+.ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
 .ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
 .ac-custom::placeholder{color:var(--text-light,var(--text));opacity:.65}
 .ac-hint{margin:0;font-size:11px;line-height:1.4;color:var(--danger,#d9534f)}
 .ac-hint:empty{display:none}
 .ac-done{margin:0;font-size:12.5px;line-height:1.5;color:var(--text)}
-.ac-btn{padding:5px 12px;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:calc(8px * var(--corner-radius-scale,1));background:transparent;color:var(--text);font:inherit;font-size:12px;line-height:1.5;cursor:pointer;transition:background .16s ease}
+.ac-btn{padding:5px 12px;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:min(calc(8px * var(--corner-radius-scale,1)),10px);background:transparent;color:var(--text);font:inherit;font-size:12px;line-height:1.5;cursor:pointer;transition:background .16s ease}
 .ac-btn:hover{background:color-mix(in srgb,var(--text) 7%,transparent)}
 .ac-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .ac-btn.primary:hover{background:var(--accent-hover)}

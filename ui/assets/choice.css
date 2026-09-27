@@ -140,7 +140,7 @@ body {
   appearance: none;
   text-align: left;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
-  border-radius: calc(12px * var(--corner-radius-scale, 1));
+  border-radius: min(calc(12px * var(--corner-radius-scale, 1)), 14px);
   background: transparent;
   color: var(--text);
   padding: 9px 11px;
@@ -166,7 +166,7 @@ body {
   height: 19px;
   display: grid;
   place-items: center;
-  border-radius: calc(6px * var(--corner-radius-scale, 1));
+  border-radius: min(calc(6px * var(--corner-radius-scale, 1)), 5px);
   background: color-mix(in srgb, var(--text) 9%, transparent);
   font-size: 11px;
   line-height: 1;
@@ -191,7 +191,7 @@ body {
   flex: 1;
   min-width: 0;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
-  border-radius: calc(12px * var(--corner-radius-scale, 1));
+  border-radius: min(calc(12px * var(--corner-radius-scale, 1)), 14px);
   background: transparent;
   color: var(--text);
   padding: 9px 11px;
@@ -234,7 +234,7 @@ body {
 .ac-btn {
   padding: 5px 12px;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 14%, transparent));
-  border-radius: calc(8px * var(--corner-radius-scale, 1));
+  border-radius: min(calc(8px * var(--corner-radius-scale, 1)), 10px);
   background: transparent;
   color: var(--text);
   font: inherit;
