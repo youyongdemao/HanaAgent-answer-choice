@@ -4,7 +4,7 @@
 
 ## 功能
 
-- Agent 调用 `ask_choice`，选项面板出现在输入框上方，**不阻塞**工具调用
+- Agent 调用 `answer_choice`，选项面板出现在输入框上方，**不阻塞**工具调用
 - 单选或多选由调用时指定，允不允许自定义答案也由调用时指定
 - 单选点一下就走；多选在顶栏显示已选数量，再按确认
 - 顶栏整条可点，能把面板收成一条（收起时只剩标题和展开箭头）
@@ -18,9 +18,9 @@
 
 两种形态走的通道不同，规则也不同：
 
-- **弹窗**：`ask_choice` 是**应用工具**，而极简、轻量、常规这三种工具调用模式下，应用工具都不进
+- **弹窗**：`answer_choice` 是**应用工具**，而极简、轻量、常规这三种工具调用模式下，应用工具都不进
   模型每轮直接选用的工具表，只进 `tool_search` 的目录。所以规则直接写明调用路径：调 `tool_call`，
-  `server` 传 `ask-choice`、`tool` 传 `ask_choice`，不必先 `tool_search`。
+  `server` 传 `answer-choice`、`tool` 传 `answer_choice`，不必先 `tool_search`。
 - **卡片**：同一支工具在卡片形态下不挂面板，而是返回一份内容已填好的完整 HTML；模型拿到后
   原样交给内置工具 `show_card` 的 `code` 参数。整条路不依赖任何 Recipe，装完 App 就能用。
   卡片的界面照面板那套做：同一个顶栏（圆点 + 标题 + 按钮组）、跳过在左确认在右、单选点一下即提交，
@@ -88,7 +88,7 @@ Agent 侧无需额外说明，工具描述里已经写清了适用场景。参�
 
 ## 形态值存在哪
 
-存在 `sdk.storage.global`（落在 `app-data/ask-choice/storage/global.json`），**不走** manifest 的
+存在 `sdk.storage.global`（落在 `app-data/answer-choice/storage/global.json`），**不走** manifest 的
 `contributes.settings` schema。原因是一个宿主 bug：通过 `ctx.config` 保存的形态会正常写进
 `user/preferences.json` 的 `settings_contributions`，但 App 再读时 `get` 返回 `null`、`getAll`
 返回 `{}`，写进去读不回来。storage 没有这个问题，prompt-optimizer 等 App 一直用它。
@@ -98,7 +98,7 @@ Agent 侧无需额外说明，工具描述里已经写清了适用场景。参�
 
 ```
 manifest.json        清单（tools + input.panels + session.start-turn + 两个钩子）
-index.js             工具 ask_choice：弹窗形态挂面板；卡片形态生成卡片 HTML
+index.js             工具 answer_choice：弹窗形态挂面板；卡片形态生成卡片 HTML
                      两个钩子：session/input 收面板，agent/before-start 注入调用规则
 ui/choice.html       输入框上方的选择页
 ui/assets/choice.js  渲染选项 + 自绘确认按钮，POST 到 /submit

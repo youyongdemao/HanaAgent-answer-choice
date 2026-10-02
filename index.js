@@ -1,4 +1,4 @@
-// ask-choice v2 App — 把「需要用户拿主意」变成输入框上方的一次点选（非阻塞版）
+// answer-choice v2 App — 把「需要用户拿主意」变成输入框上方的一次点选（非阻塞版）
 //
 // 为什么不用阻塞式 userInteraction.ask：宿主对 App 工具执行有 30 秒 RPC 硬超时
 // （app-host-entry.js 的 APP_HOST_RPC_TIMEOUT_MS = 30000），指望用户在 30 秒内
@@ -15,7 +15,7 @@
 //   app/sessions.manage     —— 目标会话不属于本 App 时（scope: "all"）才需要
 import { defineApp } from "./sdk/app-contract/server-client.js";
 
-export const name = "ask-choice";
+export const name = "answer-choice";
 
 const MAX_OPTIONS = 8;
 const MAX_QUESTION_CHARS = 2000;
@@ -32,7 +32,7 @@ function normalizeOptions(value) {
 }
 
 function newPanelId() {
-  return `ask-choice-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  return `answer-choice-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function errorText(error) {
@@ -228,7 +228,7 @@ async function resolveSessionId(sdk, sessionPath) {
 }
 
 export default defineApp(async (sdk) => {
-  await sdk.logger.info("ask-choice loaded");
+  await sdk.logger.info("answer-choice loaded");
 
   /** panelId -> { panelId, sessionPath, sessionId, callToken, question } */
   const pending = new Map();
@@ -250,13 +250,13 @@ export default defineApp(async (sdk) => {
       const stored = await sdk.storage.global.get("form", null);
       if (stored === FORM_CARD || stored === FORM_PANEL) return stored;
     } catch (error) {
-      await sdk.logger.warn(`ask-choice: 读 storage 失败 ${errorText(error)}`);
+      await sdk.logger.warn(`answer-choice: 读 storage 失败 ${errorText(error)}`);
     }
     try {
       const legacy = await sdk.config.get("form");
       if (legacy === FORM_CARD || legacy === FORM_PANEL) {
         await sdk.storage.global.set("form", legacy);
-        await sdk.logger.info(`ask-choice: 形态从 config 迁移到 storage = ${legacy}`);
+        await sdk.logger.info(`answer-choice: 形态从 config 迁移到 storage = ${legacy}`);
         return legacy;
       }
     } catch {
@@ -268,12 +268,12 @@ export default defineApp(async (sdk) => {
   /** 读当前形态设置；读不到就当面板。 */
   async function currentForm() {
     const stored = await readForm();
-    await sdk.logger.info(`ask-choice: 形态读取 = ${JSON.stringify(stored)}`);
+    await sdk.logger.info(`answer-choice: 形态读取 = ${JSON.stringify(stored)}`);
     return stored === FORM_CARD ? FORM_CARD : FORM_PANEL;
   }
 
   const form = await currentForm();
-  await sdk.logger.info(`ask-choice: 提问形态 = ${form}`);
+  await sdk.logger.info(`answer-choice: 提问形态 = ${form}`);
 
   /**
    * 收起一个会话下还挂着的面板。
@@ -288,7 +288,7 @@ export default defineApp(async (sdk) => {
       try {
         await sdk.userInteraction.dismiss({ sessionId: record.sessionId, id: record.panelId });
       } catch (error) {
-        await sdk.logger.warn(`ask-choice: 收面板失败 ${errorText(error)}`);
+        await sdk.logger.warn(`answer-choice: 收面板失败 ${errorText(error)}`);
       }
     }
     return count;
@@ -299,7 +299,7 @@ export default defineApp(async (sdk) => {
   await sdk.hooks.onDecision("session/input", async (invocation) => {
     const sessionId = typeof invocation?.sessionId === "string" ? invocation.sessionId : "";
     const count = await dismissPanels(sessionId);
-    if (count > 0) await sdk.logger.info(`ask-choice: 收到新的输入，收起了 ${count} 个面板`);
+    if (count > 0) await sdk.logger.info(`answer-choice: 收到新的输入，收起了 ${count} 个面板`);
     return undefined;
   });
 
@@ -313,7 +313,7 @@ export default defineApp(async (sdk) => {
   // 走 agent/before-start：它在每轮开始前拿到该轮的 systemPrompt，可以返回
   // 改写后的版本，代价小、位置最靠前。注入前先查标记，避免宿主重复传入时叠加。
   // ---------------------------------------------------------------------------
-  const RULE_MARK = "【快捷回复 / ask-choice】";
+  const RULE_MARK = "【快捷回复 / answer-choice】";
   const RULE_TAIL =
     "需要长篇展开的、只剩一个合理选项的、你自己能查到或直接决定的问题，不问。";
 
@@ -330,7 +330,7 @@ export default defineApp(async (sdk) => {
         "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂出来，" +
         "不要在正文里罗列问题让用户自己找答案。" +
         "当前形态是「卡片」，两步走：" +
-        "① 调 tool_call，server 传 \"ask-choice\"、tool 传 \"ask_choice\"、" +
+        "① 调 tool_call，server 传 \"answer-choice\"、tool 传 \"answer_choice\"、" +
         "arguments 传 { question, options, uiLanguage }（需要多选再加 multi: true），" +
         "它会返回一份内容已填好的完整卡片 HTML；" +
         "② 把返回的文本逐字原样交给 show_card 的 code 参数，title 自己起一个。" +
@@ -343,9 +343,9 @@ export default defineApp(async (sdk) => {
       RULE_MARK +
       "要用户拿主意时，只要问题能拆成 2 到 8 个短选项，就必须把选项挂到用户输入框上方，" +
       "不要在正文里罗列问题让用户自己找答案。" +
-      "当前形态是「弹窗」：调用内置工具 tool_call，参数 server 传 \"ask-choice\"、" +
-      "tool 传 \"ask_choice\"、arguments 传 { question, options }。" +
-      "ask_choice 是应用工具，通常不在你手边的工具表里，但按上面这个方式一步就能调到；" +
+      "当前形态是「弹窗」：调用内置工具 tool_call，参数 server 传 \"answer-choice\"、" +
+      "tool 传 \"answer_choice\"、arguments 传 { question, options }。" +
+      "answer_choice 是应用工具，通常不在你手边的工具表里，但按上面这个方式一步就能调到；" +
       "不要因为工具表里没有它或没搜到它，就改用文字提问，也不必先 tool_search。" +
       RULE_TAIL
     );
@@ -377,9 +377,9 @@ export default defineApp(async (sdk) => {
       const value = body && body.form === FORM_CARD ? FORM_CARD : FORM_PANEL;
       try {
         await sdk.storage.global.set("form", value);
-        await sdk.logger.info(`ask-choice: 形态已保存 = ${value}`);
+        await sdk.logger.info(`answer-choice: 形态已保存 = ${value}`);
       } catch (error) {
-        await sdk.logger.warn(`ask-choice: 形态保存失败 = ${errorText(error)}`);
+        await sdk.logger.warn(`answer-choice: 形态保存失败 = ${errorText(error)}`);
         return c.json({ ok: false, message: `保存失败：${errorText(error)}` }, 500);
       }
       // needsReload 恒为 true：设置页按「需重启生效」提示。
@@ -432,7 +432,7 @@ export default defineApp(async (sdk) => {
       }
       if (!sent) {
         const detail = failures.join(" ｜ ");
-        await sdk.logger.warn(`ask-choice: 回传选择失败：${detail}`);
+        await sdk.logger.warn(`answer-choice: 回传选择失败：${detail}`);
         return c.json({ ok: false, message: `没能把答案送回对话：${detail}` }, 500);
       }
 
@@ -440,7 +440,7 @@ export default defineApp(async (sdk) => {
       try {
         await sdk.userInteraction.dismiss({ sessionId: record.sessionId, id: record.panelId });
       } catch (error) {
-        await sdk.logger.warn(`ask-choice: 收起面板失败 ${errorText(error)}`);
+        await sdk.logger.warn(`answer-choice: 收起面板失败 ${errorText(error)}`);
       }
       return c.json({ ok: true });
     });
@@ -450,7 +450,7 @@ export default defineApp(async (sdk) => {
     // 形态在 App 启动时读一次。宿主不允许同名工具重复注册，而先注销会让执行器映射失效
     //（工具表仍指着旧 handle，调用报 "no tool executor"），所以形态切换只能靠重载 App 生效。
     askTool = await sdk.tools.register({
-    name: "ask_choice",
+    name: "answer_choice",
     description: TOOL_DESCRIPTION,
     parameters: {
       type: "object",
@@ -470,9 +470,9 @@ export default defineApp(async (sdk) => {
     },
     execute: async ({ question, options, allow_custom, multi, title, uiLanguage, context } = {}) => {
       const text = typeof question === "string" ? question.trim() : "";
-      if (!text) throw new Error("ask_choice 需要 question。");
+      if (!text) throw new Error("answer_choice 需要 question。");
       const list = normalizeOptions(options);
-      if (list.length < 2) throw new Error("ask_choice 至少需要 2 个不同的候选项。");
+      if (list.length < 2) throw new Error("answer_choice 至少需要 2 个不同的候选项。");
 
       const allowCustom = allow_custom !== false;
       const isMulti = multi === true;
@@ -500,7 +500,7 @@ export default defineApp(async (sdk) => {
       }
 
       const sessionPath = typeof context?.sessionPath === "string" ? context.sessionPath : "";
-      if (!sessionPath) throw new Error("ask_choice 只能在会话里调用（这次调用没带 sessionPath）。");
+      if (!sessionPath) throw new Error("answer_choice 只能在会话里调用（这次调用没带 sessionPath）。");
 
       const panelTitle = (typeof title === "string" && title.trim() ? title.trim() : "需要你定一下").slice(0, 60);
 
@@ -560,5 +560,5 @@ export default defineApp(async (sdk) => {
   }
 
   await registerAskTool();
-  await sdk.logger.info("ask-choice ready");
+  await sdk.logger.info("answer-choice ready");
 });

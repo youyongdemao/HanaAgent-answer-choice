@@ -75,7 +75,7 @@ function fromUrl() {
     }
     if (link.getAttribute("href") !== stylesheetUrl.href) link.setAttribute("href", stylesheetUrl.href);
   } catch (error) {
-    console.warn("[ask-choice] 无法加载 Hana 主题样式", error);
+    console.warn("[answer-choice] 无法加载 Hana 主题样式", error);
   }
 }
 
@@ -172,5 +172,5 @@ loadSettings();
 try {
   hana.ready();
 } catch (error) {
-  console.warn("[ask-choice] ready 握手失败", error);
+  console.warn("[answer-choice] ready 握手失败", error);
 }

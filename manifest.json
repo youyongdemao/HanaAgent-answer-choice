@@ -1,6 +1,6 @@
 {
   "manifestVersion": 2,
-  "id": "ask-choice",
+  "id": "answer-choice",
   "name": "快捷回复",
   "version": "0.1.0",
   "entry": "index.js",
