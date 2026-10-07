@@ -331,3 +331,57 @@ body {
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
   font-size: 12.5px;
 }
+
+/* ── 「关于」那一行右侧的控件组：值 + 动作 ── */
+.st-ctl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+/* 小尺寸幽灵按钮，跟 .st-save 的实心块区分开：它只是「查一下」 */
+.st-mini {
+  flex: none;
+  padding: 4px 11px;
+  border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+  border-radius: calc(8px * var(--corner-radius-scale, 1));
+  background: transparent;
+  color: var(--text-light, var(--text));
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+.st-mini:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--text);
+}
+.st-mini:active {
+  transform: scale(.97);
+}
+
+/* 外链：整行可点，尾部带一个不外出的箭头，一眼看出会离开本页 */
+.st-link {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent, #6b7a90);
+  text-decoration: none;
+  transition: color .16s ease;
+}
+.st-link:hover {
+  color: var(--accent-hover, var(--accent, #6b7a90));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.st-link::after {
+  content: "↗";
+  margin-left: 5px;
+  font-size: 11px;
+  opacity: .75;
+}

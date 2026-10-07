@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>快捷回复 · 设置</title>
   <link rel="stylesheet" href="./assets/settings.css">
+  <link rel="stylesheet" href="./assets/update-notice.css">
   <!-- 主题跟随与宿主握手都在这里：少了它宿主会一直等，页面转圈到超时 -->
   <script type="module" src="./assets/settings.js"></script>
 </head>
-<body data-hana-theme="inherit">
+<body class="is-settings" data-hana-theme="inherit">
   <div class="st-page">
 
     <h1 class="st-title">界面设置</h1>
@@ -66,14 +67,19 @@
 
     <h1 class="st-title">关于</h1>
     <div class="st-card">
-      <!-- 自定义页面，版本号写在文件里；发版时记得同步 -->
+      <!-- 版本与仓库地址都由后端 /meta 下发（版本直接读随包清单），不在页面里写死 -->
       <div class="st-row">
         <span class="st-label">版本</span>
-        <span class="st-value st-mono">v0.1.0</span>
+        <span class="st-ctl">
+          <span class="st-value st-mono" id="aboutVersion">v–</span>
+          <button class="st-mini" id="aboutUpdate" type="button">更新</button>
+        </span>
       </div>
       <div class="st-row">
         <span class="st-label">GitHub</span>
-        <span class="st-value st-mono">github.com/youyongdemao/HanaAgent-answer-choice</span>
+        <span class="st-ctl">
+          <a class="st-link st-mono" id="aboutGithub" href="https://github.com/youyongdemao/HanaAgent-answer-choice" rel="noopener noreferrer">github.com/youyongdemao/HanaAgent-answer-choice</a>
+        </span>
       </div>
     </div>
 

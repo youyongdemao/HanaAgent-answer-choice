@@ -3,6 +3,8 @@
 // 必须引 SDK 并调 hana.ready()：宿主用这个握手确认 App 的 UI 页面已经挂好，
 // 少了它，设置页会一直转圈，最后被判「应用加载失败」。
 import { hana } from "./sdk.js";
+import { apiFetch } from "./app-api.js";
+import { openUpdateNotice } from "./update-notice.js";
 
 /** 要从宿主窗口镜像过来的变量（跟面板用的是同一批） */
 const VARS = [
@@ -168,6 +170,46 @@ async function saveSettings() {
 
 document.getElementById("stSave")?.addEventListener("click", saveSettings);
 loadSettings();
+
+// ── 关于：版本与仓库地址由后端下发，链接交给宿主的外部打开能力 ──
+
+async function loadAbout() {
+  try {
+    const meta = await apiFetch("meta", {}, 8000);
+    if (meta?.version) {
+      const v = document.getElementById("aboutVersion");
+      if (v) v.textContent = "v" + meta.version;
+    }
+    const link = document.getElementById("aboutGithub");
+    if (link && typeof meta?.repo === "string" && meta.repo) {
+      link.href = `https://github.com/${meta.repo}`;
+      link.textContent = meta.repo;
+    }
+  } catch (error) {
+    /* 读不到就保持占位，不打断页面 */
+  }
+}
+
+loadAbout();
+
+// GitHub 那行走宿主的外部打开能力；宿主没接住就退回 window.open
+const aboutGithub = document.getElementById("aboutGithub");
+if (aboutGithub) {
+  aboutGithub.addEventListener("click", (event) => {
+    event.preventDefault();
+    const url = aboutGithub.href;
+    if (!url) return;
+    const fallback = () => window.open(url, "_blank", "noopener");
+    try {
+      const opened = hana.external.open({ url });
+      if (opened && typeof opened.catch === "function") opened.catch(fallback);
+    } catch {
+      fallback();
+    }
+  });
+}
+
+document.getElementById("aboutUpdate")?.addEventListener("click", () => openUpdateNotice());
 
 try {
   hana.ready();

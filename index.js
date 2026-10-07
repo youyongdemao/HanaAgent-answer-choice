@@ -14,6 +14,7 @@
 //   app/session.start-turn  —— 往会话里投一条会进入模型的回合
 //   app/sessions.manage     —— 目标会话不属于本 App 时（scope: "all"）才需要
 import { defineApp } from "./sdk/app-contract/server-client.js";
+import { registerUpdateRoutes, readVersion } from "./lib/update-check.js";
 
 export const name = "answer-choice";
 
@@ -372,6 +373,15 @@ export default defineApp(async (sdk) => {
   });
 
   await sdk.routes.register((app) => {
+    // 设置页「关于」用：版本 + 仓库地址（纯本地，不联网）
+    app.get("/meta", (c) =>
+      c.json({
+        ok: true,
+        version: readVersion(),
+        repo: "youyongdemao/HanaAgent-answer-choice",
+      }),
+    );
+
     // 设置页读当前形态
     app.get("/settings", async (c) => {
       return c.json({ ok: true, form: await currentForm() });
@@ -396,6 +406,9 @@ export default defineApp(async (sdk) => {
       // needsReload 恒为 true：设置页按「需重启生效」提示。
       return c.json({ ok: true, form: value, needsReload: true });
     });
+
+    // 检查更新：只查 GitHub 上最新的已发布版本，安装仍走「设置 → 扩展」
+    registerUpdateRoutes(app, sdk);
 
     // 面板页面点「确认」或「跳过」后打到这里
     app.post("/submit", async (c) => {

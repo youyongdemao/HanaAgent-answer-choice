@@ -2,7 +2,7 @@
   "manifestVersion": 2,
   "id": "answer-choice",
   "name": "快捷回复",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "entry": "index.js",
   "icon": "assets/icon.svg",
   "description": "需要你拿主意时，把选项挂到输入框上方：点一下，答案就回到对话里。",
@@ -14,8 +14,19 @@
     "app/sessions.read",
     "app/sessions.manage",
     "app/hooks.session-input",
-    "app/hooks.agent-before-start"
+    "app/hooks.agent-before-start",
+    "app/ui.open-external"
   ],
+  "network": {
+    "allowedHosts": [
+      "api.github.com"
+    ],
+    "methods": [
+      "GET"
+    ],
+    "defaultTimeoutMs": 15000,
+    "maxResponseBytes": 4194304
+  },
   "contributes": {
     "settings": {
       "title": "快捷回复",
