@@ -123,7 +123,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-num{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:min(calc(6px * var(--corner-radius-scale,1)),5px);background:color-mix(in srgb,var(--text) 9%,transparent);font-size:11px;line-height:1;color:var(--text-light,var(--text))}
 .ac-opt.is-on .ac-num{background:var(--accent);color:#fff}
 .ac-label{min-width:0;overflow-wrap:anywhere}
-.ac-custom-row{display:flex;flex:0 1 240px;min-width:0}
+.ac-custom-row{display:flex;flex:1 1 auto;min-width:0}
 .ac-custom-row[hidden]{display:none}
 .ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
 .ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
