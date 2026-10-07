@@ -112,8 +112,9 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-dot{flex:none;width:7px;height:7px;border-radius:3px;background:var(--accent)}
 .ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
-.ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto;margin-right:72px}
+.ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
 .ac-body{display:grid;gap:8px;padding:8px 0 2px}
+.ac-foot{display:flex;align-items:center;gap:8px;min-width:0}
 .ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
 .ac-options{display:flex;flex-direction:column;gap:6px}
 .ac-opt{display:flex;align-items:center;gap:11px;min-width:0;appearance:none;text-align:left;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
@@ -122,7 +123,8 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-num{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:min(calc(6px * var(--corner-radius-scale,1)),5px);background:color-mix(in srgb,var(--text) 9%,transparent);font-size:11px;line-height:1;color:var(--text-light,var(--text))}
 .ac-opt.is-on .ac-num{background:var(--accent);color:#fff}
 .ac-label{min-width:0;overflow-wrap:anywhere}
-.ac-custom-row{display:flex}
+.ac-custom-row{display:flex;flex:0 1 240px;min-width:0}
+.ac-custom-row[hidden]{display:none}
 .ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
 .ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
 .ac-custom::placeholder{color:var(--text-light,var(--text));opacity:.65}
@@ -141,15 +143,17 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 <span class="ac-dot" aria-hidden="true"></span>
 <span class="ac-head" id="head"></span>
 <span class="ac-tag" id="tag" hidden></span>
-<span class="ac-tools" id="tools">
-<button type="button" class="ac-btn" id="skip"></button>
-<button type="button" class="ac-btn primary" id="confirm"></button>
-</span>
 </p>
 <div class="ac-body">
 <p class="ac-question" id="q"></p>
 <div class="ac-options" id="o"></div>
+<div class="ac-foot">
 <div class="ac-custom-row" id="crow"><input class="ac-custom" id="custom" type="text" spellcheck="false"></div>
+<span class="ac-tools" id="tools">
+<button type="button" class="ac-btn" id="skip"></button>
+<button type="button" class="ac-btn primary" id="confirm"></button>
+</span>
+</div>
 <p class="ac-hint" id="h"></p>
 <p class="ac-done" id="done" hidden></p>
 </div>
