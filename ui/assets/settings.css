@@ -364,18 +364,18 @@ body {
   transform: scale(.97);
 }
 
-/* 外链：整行可点，尾部带一个不外出的箭头，一眼看出会离开本页 */
+/* 外链：整行可点，尾部带一个不外出的箭头，一眼看出会离开本页。
+   颜色用正文色，不占主题强调色——它只是个地址，不是主操作。 */
 .st-link {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--accent, #6b7a90);
+  color: var(--text);
   text-decoration: none;
-  transition: color .16s ease;
+  transition: opacity .16s ease;
 }
 .st-link:hover {
-  color: var(--accent-hover, var(--accent, #6b7a90));
   text-decoration: underline;
   text-underline-offset: 2px;
 }
