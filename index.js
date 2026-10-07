@@ -114,6 +114,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
 .ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
 .ac-body{display:grid;gap:8px;padding:8px 0 2px}
+.ac-foot{display:flex;align-items:center;gap:6px}
 .ac-lastrow{display:flex;align-items:center;gap:6px}
 .ac-lastrow>.ac-opt{flex:1 1 auto;min-width:0}
 .ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
@@ -124,7 +125,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-num{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:min(calc(6px * var(--corner-radius-scale,1)),5px);background:color-mix(in srgb,var(--text) 9%,transparent);font-size:11px;line-height:1;color:var(--text-light,var(--text))}
 .ac-opt.is-on .ac-num{background:var(--accent);color:#fff}
 .ac-label{min-width:0;overflow-wrap:anywhere}
-.ac-custom-row{display:flex;min-width:0}
+.ac-custom-row{display:flex;flex:1 1 auto;min-width:0}
 .ac-custom-row[hidden]{display:none}
 .ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
 .ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
@@ -148,11 +149,13 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 <div class="ac-body">
 <p class="ac-question" id="q"></p>
 <div class="ac-options" id="o"></div>
+<div class="ac-foot" id="foot">
+<div class="ac-custom-row" id="crow"><input class="ac-custom" id="custom" type="text" spellcheck="false"></div>
 <span class="ac-tools" id="tools">
 <button type="button" class="ac-btn" id="skip"></button>
 <button type="button" class="ac-btn primary" id="confirm"></button>
 </span>
-<div class="ac-custom-row" id="crow"><input class="ac-custom" id="custom" type="text" spellcheck="false"></div>
+</div>
 <p class="ac-hint" id="h"></p>
 <p class="ac-done" id="done" hidden></p>
 </div>
@@ -161,7 +164,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 (function(){
 var D=${data},L=${labels},api=window.card;
 var box=document.getElementById("box"),ob=document.getElementById("o"),hn=document.getElementById("h"),ie=document.getElementById("custom");
-var skb=document.getElementById("skip"),cfb=document.getElementById("confirm"),tg=document.getElementById("tag"),crow=document.getElementById("crow"),dn=document.getElementById("done"),tl=document.getElementById("tools");
+var skb=document.getElementById("skip"),cfb=document.getElementById("confirm"),tg=document.getElementById("tag"),crow=document.getElementById("crow"),dn=document.getElementById("done"),tl=document.getElementById("tools"),ft=document.getElementById("foot");
 var picked=[],done=false,multi=D.m,allowCustom=D.c;
 document.getElementById("q").textContent=D.q;
 document.getElementById("head").textContent=D.t?D.t:"";
@@ -192,10 +195,11 @@ picked=[label];ie.value="";paint();send("answer",{choice:label},"answer",label);
 });
 ob.appendChild(b);
 });
-(function(){
+if(!allowCustom){
 var last=ob.lastElementChild;
 if(last){var row=document.createElement("div");row.className="ac-lastrow";ob.replaceChild(row,last);row.appendChild(last);row.appendChild(tl);}
-})();
+ft.style.display="none";
+}
 if(allowCustom){ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});}
 cfb.addEventListener("click",function(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hint(L.em);return;}send("answer",{choice:v},"answer",v);});
 skb.addEventListener("click",function(){if(done)return;send("skip",{},"skip","");});
