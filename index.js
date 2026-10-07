@@ -112,7 +112,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-dot{flex:none;width:7px;height:7px;border-radius:3px;background:var(--accent)}
 .ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
-.ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
+.ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto;margin-right:72px}
 .ac-body{display:grid;gap:8px;padding:8px 0 2px}
 .ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
 .ac-options{display:flex;flex-direction:column;gap:6px}
