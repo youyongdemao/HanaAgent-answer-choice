@@ -21,6 +21,7 @@ let options = [];
 let allowCustom = false;
 let multi = false;
 let gotContext = false;
+let currentBinding = null;
 let settled = false;
 let isExpanded = true;
 
@@ -400,6 +401,13 @@ function render() {
 
 hana.inputPanel.onContextChanged((panel) => {
   if (!panel) return;
+  // 高度上报也会触发 contextChanged；同一问题只更新展开状态，不能重建正在输入的 textarea。
+  const binding = `${panel.panelId}:${panel.instanceId}:${panel.revision}`;
+  if (gotContext && binding === currentBinding) {
+    applyExpanded(panel.presentation ? panel.presentation.expanded !== false : true);
+    return;
+  }
+  currentBinding = binding;
   const data = panel.data || {};
   panelId = typeof data.panelId === "string" ? data.panelId : "";
   panelTitle = typeof data.title === "string" && data.title.trim() ? data.title.trim() : "需要你定一下";
