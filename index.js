@@ -199,7 +199,7 @@ if(last){var row=document.createElement("div");row.className="ac-lastrow";ob.rep
 ft.style.display="none";
 }
 function confirmChoice(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hint(L.em);return;}send("answer",{choice:v},"answer",v);}
-function insertLineBreak(){var start=ie.selectionStart==null?ie.value.length:ie.selectionStart,end=ie.selectionEnd==null?start:ie.selectionEnd;ie.setRangeText("\n",start,end,"end");ie.dispatchEvent(new Event("input",{bubbles:true}));}
+function insertLineBreak(){var start=ie.selectionStart==null?ie.value.length:ie.selectionStart,end=ie.selectionEnd==null?start:ie.selectionEnd;ie.setRangeText("\\n",start,end,"end");ie.dispatchEvent(new Event("input",{bubbles:true}));}
 if(allowCustom){
 ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});
 window.addEventListener("keydown",function(event){if(event.target!==ie||event.key!=="Enter"||event.isComposing||event.keyCode===229)return;event.preventDefault();event.stopImmediatePropagation();if(event.shiftKey){insertLineBreak();}else{confirmChoice();}},true);
