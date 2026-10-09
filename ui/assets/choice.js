@@ -110,6 +110,23 @@ function setExpanded(expanded) {
   pushPresentation(patch);
 }
 
+/** 输入框随内容长高，最多展示五行，超过后改为内部滚动。 */
+function resizeCustomInput() {
+  if (!customEl) return;
+  customEl.style.height = "auto";
+  const style = getComputedStyle(customEl);
+  const lineHeight = Number.parseFloat(style.lineHeight) || 19;
+  const extra =
+    (Number.parseFloat(style.paddingTop) || 0) +
+    (Number.parseFloat(style.paddingBottom) || 0) +
+    (Number.parseFloat(style.borderTopWidth) || 0) +
+    (Number.parseFloat(style.borderBottomWidth) || 0);
+  const maxHeight = Math.ceil(lineHeight * 5 + extra);
+  const height = Math.min(customEl.scrollHeight, maxHeight);
+  customEl.style.height = `${height}px`;
+  customEl.style.overflowY = customEl.scrollHeight > maxHeight ? "auto" : "hidden";
+}
+
 /** 自定义输入框只建一次：每次重绘都重建会让正在打字的人丢焦点 */
 function ensureCustomInput() {
   if (customEl) return customEl;
@@ -118,8 +135,10 @@ function ensureCustomInput() {
   customEl.rows = 1;
   customEl.spellcheck = false;
   customEl.placeholder = "或输入你的答案";
+  customEl.style.overflowY = "hidden";
   customEl.addEventListener("input", () => {
     customText = customEl.value;
+    resizeCustomInput();
     // 单选时「自己写」和「点选项」互斥，写了就把选项的选择让出来
     if (customText.trim() && !multi && selected.size) {
       selected.clear();
@@ -375,6 +394,7 @@ function render() {
   box.appendChild(body);
   root.appendChild(box);
   renderOptions();
+  if (allowCustom) resizeCustomInput();
   reportHeight();
 }
 

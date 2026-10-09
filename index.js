@@ -127,7 +127,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-label{min-width:0;overflow-wrap:anywhere}
 .ac-custom-row{display:flex;flex:1 1 auto;min-width:0}
 .ac-custom-row[hidden]{display:none}
-.ac-custom{flex:1;min-width:0;min-height:38px;max-height:128px;resize:vertical;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;transition:border-color .16s,box-shadow .16s}
+.ac-custom{flex:1;min-width:0;min-height:38px;max-height:115px;resize:none;overflow-y:hidden;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;transition:border-color .16s,box-shadow .16s}
 .ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
 .ac-custom::placeholder{color:var(--text-light,var(--text));opacity:.65}
 .ac-hint{margin:0;font-size:11px;line-height:1.4;color:var(--danger,#d9534f)}
@@ -199,9 +199,11 @@ if(last){var row=document.createElement("div");row.className="ac-lastrow";ob.rep
 ft.style.display="none";
 }
 function confirmChoice(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hint(L.em);return;}send("answer",{choice:v},"answer",v);}
+function resizeInput(){ie.style.height="auto";var style=getComputedStyle(ie),line=parseFloat(style.lineHeight)||19,extra=(parseFloat(style.paddingTop)||0)+(parseFloat(style.paddingBottom)||0)+(parseFloat(style.borderTopWidth)||0)+(parseFloat(style.borderBottomWidth)||0),max=Math.ceil(line*5+extra),height=Math.min(ie.scrollHeight,max);ie.style.height=height+"px";ie.style.overflowY=ie.scrollHeight>max?"auto":"hidden";}
 function insertLineBreak(){var start=ie.selectionStart==null?ie.value.length:ie.selectionStart,end=ie.selectionEnd==null?start:ie.selectionEnd;ie.setRangeText("\\n",start,end,"end");ie.dispatchEvent(new Event("input",{bubbles:true}));}
 if(allowCustom){
-ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});
+ie.addEventListener("input",function(){resizeInput();if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});
+resizeInput();
 window.addEventListener("keydown",function(event){if(event.target!==ie||event.key!=="Enter"||event.isComposing||event.keyCode===229)return;event.preventDefault();event.stopImmediatePropagation();if(event.shiftKey){insertLineBreak();}else{confirmChoice();}},true);
 }
 cfb.addEventListener("click",confirmChoice);
