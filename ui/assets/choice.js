@@ -113,9 +113,9 @@ function setExpanded(expanded) {
 /** 自定义输入框只建一次：每次重绘都重建会让正在打字的人丢焦点 */
 function ensureCustomInput() {
   if (customEl) return customEl;
-  customEl = document.createElement("input");
-  customEl.type = "text";
+  customEl = document.createElement("textarea");
   customEl.className = "ac-custom";
+  customEl.rows = 1;
   customEl.spellcheck = false;
   customEl.placeholder = "或输入你的答案";
   customEl.addEventListener("input", () => {
@@ -125,7 +125,22 @@ function ensureCustomInput() {
       selected.clear();
       renderOptions();
     }
+    setHint("");
+    reportHeight();
   });
+  window.addEventListener("keydown", (event) => {
+    if (event.target !== customEl || event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (event.shiftKey) {
+      const start = customEl.selectionStart ?? customEl.value.length;
+      const end = customEl.selectionEnd ?? start;
+      customEl.setRangeText("\n", start, end, "end");
+      customEl.dispatchEvent(new Event("input", { bubbles: true }));
+      return;
+    }
+    confirmCurrentChoice();
+  }, true);
   return customEl;
 }
 
@@ -187,6 +202,16 @@ function readChoice() {
   const text = customText.trim();
   if (text) picked.push(text);
   return picked.join("、");
+}
+
+function confirmCurrentChoice() {
+  if (settled) return;
+  const choice = readChoice();
+  if (!choice) {
+    setHint("先选一个，或者自己写一个答案。");
+    return;
+  }
+  submit({ panelId, choice });
 }
 
 function showDone(message) {
@@ -285,13 +310,7 @@ function render() {
   confirmBtn.textContent = "确认";
   confirmBtn.addEventListener("click", (event) => {
     event.stopPropagation();
-    if (settled) return;
-    const choice = readChoice();
-    if (!choice) {
-      setHint("先选一个，或者自己写一个答案。");
-      return;
-    }
-    submit({ panelId, choice });
+    confirmCurrentChoice();
   });
 
   const toggleBtn = document.createElement("button");
