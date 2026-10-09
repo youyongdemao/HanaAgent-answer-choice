@@ -190,6 +190,9 @@ body {
 .ac-custom {
   flex: 1;
   min-width: 0;
+  min-height: 38px;
+  max-height: 128px;
+  resize: vertical;
   border: 1px solid var(--border, color-mix(in srgb, var(--text) 12%, transparent));
   border-radius: min(calc(12px * var(--corner-radius-scale, 1)), 14px);
   background: transparent;
@@ -197,6 +200,7 @@ body {
   padding: 9px 11px;
   font: inherit;
   font-size: 13px;
+  line-height: 1.45;
   transition: border-color .16s, box-shadow .16s;
 }
 

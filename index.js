@@ -109,16 +109,15 @@ html,body{margin:0;background:transparent}
 *,*::before,*::after{box-sizing:border-box}
 body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif);color:var(--text)}
 .ac{padding:14px 16px 12px;max-width:520px;margin:0 auto}
-.ac-bar{display:flex;align-items:center;gap:8px;margin:0;padding:0;flex:0 0 auto;background:transparent}
-.ac-dot{flex:none;width:7px;height:7px;border-radius:3px;background:var(--accent)}
-.ac-head{min-width:0;font-size:11.5px;line-height:1.4;color:var(--text-light,var(--text));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ac-tag{flex:none;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
+.ac-bar{display:flex;align-items:flex-start;gap:8px;margin:0;padding:0 100px 0 0;min-height:26px;flex:0 0 auto;background:transparent}
+.ac-dot{flex:none;width:7px;height:7px;margin-top:7px;border-radius:3px;background:var(--accent)}
+.ac-head{min-width:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
+.ac-tag{flex:none;margin-top:2px;font-size:11px;line-height:1.4;color:var(--text-light,var(--text));opacity:.72}
 .ac-tools{display:flex;align-items:center;gap:5px;flex:none;margin-left:auto}
-.ac-body{display:grid;gap:8px;padding:8px 0 2px}
+.ac-body{display:grid;gap:8px;padding:6px 0 2px}
 .ac-foot{display:flex;align-items:center;gap:6px}
 .ac-lastrow{display:flex;align-items:center;gap:6px}
 .ac-lastrow>.ac-opt{flex:1 1 auto;min-width:0}
-.ac-question{margin:0;font-size:14px;font-weight:600;line-height:1.5;letter-spacing:-.01em;overflow-wrap:anywhere}
 .ac-options{display:flex;flex-direction:column;gap:6px}
 .ac-opt{display:flex;align-items:center;gap:11px;min-width:0;appearance:none;text-align:left;border:1px solid var(--border,color-mix(in srgb,var(--text) 14%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;cursor:pointer;transition:background .16s ease,border-color .16s ease}
 .ac-opt:hover{background:color-mix(in srgb,var(--text) 6%,transparent)}
@@ -128,7 +127,7 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 .ac-label{min-width:0;overflow-wrap:anywhere}
 .ac-custom-row{display:flex;flex:1 1 auto;min-width:0}
 .ac-custom-row[hidden]{display:none}
-.ac-custom{flex:1;min-width:0;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;transition:border-color .16s,box-shadow .16s}
+.ac-custom{flex:1;min-width:0;min-height:38px;max-height:128px;resize:vertical;border:1px solid var(--border,color-mix(in srgb,var(--text) 12%,transparent));border-radius:min(calc(12px * var(--corner-radius-scale,1)),14px);background:transparent;color:var(--text);padding:9px 11px;font:inherit;font-size:13px;line-height:1.45;transition:border-color .16s,box-shadow .16s}
 .ac-custom:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
 .ac-custom::placeholder{color:var(--text-light,var(--text));opacity:.65}
 .ac-hint{margin:0;font-size:11px;line-height:1.4;color:var(--danger,#d9534f)}
@@ -148,10 +147,9 @@ body{font:400 13px/1.55 var(--font-ui,system-ui,-apple-system,"Segoe UI","Micros
 <span class="ac-tag" id="tag" hidden></span>
 </p>
 <div class="ac-body">
-<p class="ac-question" id="q"></p>
 <div class="ac-options" id="o"></div>
 <div class="ac-foot" id="foot">
-<div class="ac-custom-row" id="crow"><input class="ac-custom" id="custom" type="text" spellcheck="false"></div>
+<div class="ac-custom-row" id="crow"><textarea class="ac-custom" id="custom" rows="1" spellcheck="false"></textarea></div>
 <span class="ac-tools" id="tools">
 <button type="button" class="ac-btn" id="skip"></button>
 <button type="button" class="ac-btn primary" id="confirm"></button>
@@ -167,8 +165,7 @@ var D=${data},L=${labels},api=window.card;
 var box=document.getElementById("box"),ob=document.getElementById("o"),hn=document.getElementById("h"),ie=document.getElementById("custom");
 var skb=document.getElementById("skip"),cfb=document.getElementById("confirm"),tg=document.getElementById("tag"),crow=document.getElementById("crow"),dn=document.getElementById("done"),tl=document.getElementById("tools"),ft=document.getElementById("foot");
 var picked=[],done=false,multi=D.m,allowCustom=D.c;
-document.getElementById("q").textContent=D.q;
-document.getElementById("head").textContent=D.t?D.t:"";
+document.getElementById("head").textContent=D.q;
 skb.textContent=L.sk;cfb.textContent=L.sb;
 if(allowCustom){ie.setAttribute("placeholder",L.cu);}else{crow.hidden=true;}
 if(multi){tg.hidden=false;tg.textContent=L.mu;}
@@ -201,8 +198,13 @@ var last=ob.lastElementChild;
 if(last){var row=document.createElement("div");row.className="ac-lastrow";ob.replaceChild(row,last);row.appendChild(last);row.appendChild(tl);}
 ft.style.display="none";
 }
-if(allowCustom){ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});}
-cfb.addEventListener("click",function(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hint(L.em);return;}send("answer",{choice:v},"answer",v);});
+function confirmChoice(){if(done)return;var typed=ie.value?ie.value.trim():"",v=typed||picked.join("、");if(!v){hint(L.em);return;}send("answer",{choice:v},"answer",v);}
+function insertLineBreak(){var start=ie.selectionStart==null?ie.value.length:ie.selectionStart,end=ie.selectionEnd==null?start:ie.selectionEnd;ie.setRangeText("\n",start,end,"end");ie.dispatchEvent(new Event("input",{bubbles:true}));}
+if(allowCustom){
+ie.addEventListener("input",function(){if(ie.value.trim()&&!multi&&picked.length){picked=[];paint();}hint("");});
+window.addEventListener("keydown",function(event){if(event.target!==ie||event.key!=="Enter"||event.isComposing||event.keyCode===229)return;event.preventDefault();event.stopImmediatePropagation();if(event.shiftKey){insertLineBreak();}else{confirmChoice();}},true);
+}
+cfb.addEventListener("click",confirmChoice);
 skb.addEventListener("click",function(){if(done)return;send("skip",{},"skip","");});
 })();
 </script>
