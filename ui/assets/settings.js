@@ -4,7 +4,7 @@
 // 少了它，设置页会一直转圈，最后被判「应用加载失败」。
 import { hana } from "./sdk.js";
 import { apiFetch } from "./app-api.js";
-import { openUpdateNotice } from "./update-notice.js";
+import { initUpdateNotice, openUpdateNotice } from "./update-notice.js";
 
 /** 要从宿主窗口镜像过来的变量（跟面板用的是同一批） */
 const VARS = [
@@ -171,7 +171,7 @@ async function saveSettings() {
 document.getElementById("stSave")?.addEventListener("click", saveSettings);
 loadSettings();
 
-// ── 关于：版本与仓库地址由后端下发，链接交给宿主的外部打开能力 ──
+// ── 关于：版本由后端下发；GitHub 链接固定指向用户主页（不指向具体仓库）──
 
 async function loadAbout() {
   try {
@@ -179,11 +179,6 @@ async function loadAbout() {
     if (meta?.version) {
       const v = document.getElementById("aboutVersion");
       if (v) v.textContent = "v" + meta.version;
-    }
-    const link = document.getElementById("aboutGithub");
-    if (link && typeof meta?.repo === "string" && meta.repo) {
-      link.href = `https://github.com/${meta.repo}`;
-      link.textContent = meta.repo;
     }
   } catch (error) {
     /* 读不到就保持占位，不打断页面 */
@@ -209,7 +204,9 @@ if (aboutGithub) {
   });
 }
 
+// 「更新」按钮打开检查更新弹窗；进页面也自检一次，有新版才弹（与选择面板页共用 update-notice.js）。
 document.getElementById("aboutUpdate")?.addEventListener("click", () => openUpdateNotice());
+initUpdateNotice();
 
 try {
   hana.ready();

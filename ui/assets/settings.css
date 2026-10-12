@@ -365,17 +365,19 @@ body {
 }
 
 /* 外链：整行可点，尾部带一个不外出的箭头，一眼看出会离开本页。
-   颜色用正文色，不占主题强调色——它只是个地址，不是主操作。 */
+   颜色与上面「版本」那行的值同一档（弱化色）：它只是个地址，不是主操作；
+   同屏两个值用同一档色，才不会一个看着比另一个重。悬浮时提到正文色，保留可点的反馈。 */
 .st-link {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text);
+  color: var(--text-muted, var(--text-light, var(--text)));
   text-decoration: none;
-  transition: opacity .16s ease;
+  transition: color .16s ease, opacity .16s ease;
 }
 .st-link:hover {
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
