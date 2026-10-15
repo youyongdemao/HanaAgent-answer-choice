@@ -36,7 +36,7 @@ Agent 在需要你拍板的时候调用 `answer_choice`，选项面板直接出�
 | `app/sessions.read` | 读会话信息，把会话路径换成面板要的 `sessionId` |
 | `app/sessions.manage` | 目标会话不属于本 App 时的跨归属投递 |
 | `app/hooks.session-input` | 用户一提交输入就收起还敞开的面板 |
-| `app/hooks.agent-before-start` | 每轮往系统提示注入调用规则 |
+| `app/hooks.agent-pre-step` | 每轮把调用规则作为一条消息注入本次请求 |
 
 两个钩子最关键。不打开，注入规则不生效，整个 App 等于没装。
 

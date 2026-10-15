@@ -45,8 +45,8 @@ const FORM_CARD = "card";
 
 /**
  * 工具本身的描述。形态指令不写在这里：工具描述在 App 启动时就固定了、改不了，
- * 用户切换形态后它会过期。形态相关的指令统一由 agent/before-start 每轮现读设置
- * 后注入（见下面的 buildRule），这里只留一句指路，说清以系统提示为准。
+ * 用户切换形态后它会过期。形态相关的指令统一由 agent/pre-step 每轮注入
+ * （见下面的 buildRule），这里只留一句指路，说清以注入的形态规则为准。
  */
 const TOOL_DESCRIPTION =
   "【默认动作】只要你要问用户一个能拆成 2 到 8 个短语的问题，就必须调用本工具把选项挂出来，不要用文字去罗列问题或选项。" +
@@ -55,7 +55,7 @@ const TOOL_DESCRIPTION =
   "只有这几种情况才用普通回复：答案需要展开解释或写成一句话以上的长文；答案只有一个合理选项；你自己能查到或能直接决定的事。" +
   "调用后立刻返回「面板已挂出」的回执，用户点完你才会收到新消息，因此同一轮里不要重复调用。" +
   "用户可以把提问形态切成「卡片」，那时本工具不挂面板，而是返回一份已填好内容的卡片 HTML，" +
-  "由你原样交给 show_card 的 code；当前该走哪条通道，以系统提示里的形态规则为准。";
+  "由你原样交给 show_card 的 code；当前该走哪条通道，以运行时注入的形态规则为准。";
 
 /** 卡片形态的界面文案，按语言取一套，只把用得上的那套写进 HTML。 */
 const CARD_TEXT = {
@@ -320,14 +320,20 @@ export default defineApp(async (sdk) => {
   });
 
   // ---------------------------------------------------------------------------
-  // 每轮把「该用快捷回复」这条规则钉进系统提示。
+  // 每轮把「该用快捷回复」这条规则送进模型。
   //
   // 光靠工具描述不够：模型在一长串工具里未必每次都想得起它，现实中往往要
   // 真人补一句「你怎么不用卡片」才触发。而发布给别人用之后，没有人会补这句。
   // 所以改成 App 自己每轮注入 —— 把「靠人提醒」换成「靠机制提醒」。
   //
-  // 走 agent/before-start：它在每轮开始前拿到该轮的 systemPrompt，可以返回
-  // 改写后的版本，代价小、位置最靠前。注入前先查标记，避免宿主重复传入时叠加。
+  // 注入走 agent/pre-step（宿主把它映射到 Pi 的 context / transformContext）：
+  // 它只改写「本次请求要发出去的消息」，既不写回会话、也不动 systemPrompt。
+  //   · 早先版本是把规则追加到 agent/before-start 的 systemPrompt 末尾。宿主的缓存
+  //     契约基线取的是会话级 _baseSystemPrompt，两边每轮都差这一段，于是每轮被判成
+  //     前缀漂移（cache_contract_violation）并重建缓存，供应商前缀缓存也全程失效（issue #2）。
+  //     改成 pre-step 后 systemPrompt 与基线始终一致，契约不再漂移。
+  //   · 规则追加在消息尾部、且不落盘，所以不会在会话里越积越多；前缀（系统提示 + 历史）
+  //     保持稳定，供应商缓存能照常命中。
   // ---------------------------------------------------------------------------
   const RULE_MARK = "【快捷回复 / answer-choice】";
   const RULE_TAIL =
@@ -370,10 +376,20 @@ export default defineApp(async (sdk) => {
   /** 启动时定格的那份规则，每轮原样注入。 */
   const RULE_TEXT = buildRule(form);
 
-  await sdk.hooks.onDecision("agent/before-start", async (invocation) => {
-    const base = typeof invocation?.systemPrompt === "string" ? invocation.systemPrompt : "";
-    if (base.includes(RULE_MARK)) return undefined; // 已经在里面了，不再叠加
-    return { systemPrompt: base ? `${base}\n\n${RULE_TEXT}` : RULE_TEXT };
+  // 注入用的自定义消息类型：request-only、不落盘。Pi 的 convertToLlm 会把 custom 角色转成
+  // user 角色发给模型，所以规则照常被模型看到。按 customType 去重，避免同一轮多步重复注入。
+  const RULE_PRE_STEP_TYPE = "quick-reply-rule";
+
+  await sdk.hooks.onDecision("agent/pre-step", async (invocation) => {
+    const messages = Array.isArray(invocation?.messages) ? invocation.messages : null;
+    if (!messages) return undefined;
+    if (messages.some((m) => m && m.role === "custom" && m.customType === RULE_PRE_STEP_TYPE)) return undefined;
+    return {
+      messages: [
+        ...messages,
+        { role: "custom", customType: RULE_PRE_STEP_TYPE, content: RULE_TEXT, display: false, timestamp: Date.now() },
+      ],
+    };
   });
 
   await sdk.routes.register((app) => {
