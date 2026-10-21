@@ -2,7 +2,7 @@
   "manifestVersion": 2,
   "id": "answer-choice",
   "name": "快捷回复",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "entry": "index.js",
   "icon": "assets/icon.svg",
   "description": "需要你拿主意时，把选项挂到输入框上方：点一下，答案就回到对话里。",
@@ -14,7 +14,8 @@
     "app/sessions.read",
     "app/sessions.manage",
     "app/hooks.session-input",
-    "app/hooks.agent-pre-step",
+    "app/hooks.agent-before-start",
+    "app/hooks.observe",
     "app/ui.open-external"
   ],
   "network": {

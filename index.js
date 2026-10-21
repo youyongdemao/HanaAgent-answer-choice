@@ -45,7 +45,7 @@ const FORM_CARD = "card";
 
 /**
  * 工具本身的描述。形态指令不写在这里：工具描述在 App 启动时就固定了、改不了，
- * 用户切换形态后它会过期。形态相关的指令统一由 agent/pre-step 每轮注入
+ * 用户切换形态后它会过期。形态相关的指令统一由 agent/before-start 注入
  * （见下面的 buildRule），这里只留一句指路，说清以注入的形态规则为准。
  */
 const TOOL_DESCRIPTION =
@@ -324,20 +324,30 @@ export default defineApp(async (sdk) => {
   //
   // 光靠工具描述不够：模型在一长串工具里未必每次都想得起它，现实中往往要
   // 真人补一句「你怎么不用卡片」才触发。而发布给别人用之后，没有人会补这句。
-  // 所以改成 App 自己每轮注入 —— 把「靠人提醒」换成「靠机制提醒」。
+  // 所以改成 App 自己注入 —— 把「靠人提醒」换成「靠机制提醒」。
   //
-  // 注入走 agent/pre-step（宿主把它映射到 Pi 的 context / transformContext）：
-  // 它只改写「本次请求要发出去的消息」，既不写回会话、也不动 systemPrompt。
-  //   · 早先版本是把规则追加到 agent/before-start 的 systemPrompt 末尾。宿主的缓存
-  //     契约基线取的是会话级 _baseSystemPrompt，两边每轮都差这一段，于是每轮被判成
-  //     前缀漂移（cache_contract_violation）并重建缓存，供应商前缀缓存也全程失效（issue #2）。
-  //     改成 pre-step 后 systemPrompt 与基线始终一致，契约不再漂移。
-  //   · 规则追加在消息尾部、且不落盘，所以不会在会话里越积越多；前缀（系统提示 + 历史）
-  //     保持稳定，供应商缓存能照常命中。
+  // 两个约束把落点夹在了中间，缺一个都会踩坑，写在这里免得下次再绕一圈：
+  //
+  // 约束一：不能碰 systemPrompt。宿主的缓存契约基线取会话级 _baseSystemPrompt，
+  //   把它改了就每轮被判前缀漂移（cache_contract_violation），供应商前缀缓存全程失效。
+  //   这是 issue #2，v0.1.4 的写法。
+  //
+  // 约束二：不能按「每步」注入。agent/pre-step 映射的是 Pi 的 context 事件，工具返回
+  //   之后还会再跑一次；而它注入的消息是 request-only、不落盘（实测：会话 jsonl 里
+  //   查不到这条 custom 条目），所以下一次 pre-step 拿到的 messages 里根本没有上一轮
+  //   注入的痕迹，按 customType 去重永远不命中。结果就是每个工具返回后都再注入一遍，
+  //   宿主又把 custom 角色转成 user 交给模型，模型当成新的用户指令，回一句「记住了」。
+  //   这是 issue #3，v0.1.5 的写法。
+  //
+  // 现在的落点是 before-start 的 message 字段：它每轮只触发一次，只注入一条消息，
+  // systemPrompt 字段永远不返回（连 undefined 都不带）。而且是按会话注入一次：
+  // 因为这条 message 会落盘进历史（实测 jsonl 里查得到 custom_message 条目），
+  // 落盘之后每一轮都在，按轮重发只会在长会话里攒下几十份同样的文字。
   // ---------------------------------------------------------------------------
   const RULE_MARK = "【快捷回复 / answer-choice】";
   const RULE_TAIL =
-    "需要长篇展开的、只剩一个合理选项的、你自己能查到或直接决定的问题，不问。";
+    "需要长篇展开的、只剩一个合理选项的、你自己能查到或直接决定的问题，不问。" +
+    "若会话里出现多条本条规则，以最后一条为准。";
 
   /**
    * 按当前形态拼这一轮要注入的规则。
@@ -376,20 +386,72 @@ export default defineApp(async (sdk) => {
   /** 启动时定格的那份规则，每轮原样注入。 */
   const RULE_TEXT = buildRule(form);
 
-  // 注入用的自定义消息类型：request-only、不落盘。Pi 的 convertToLlm 会把 custom 角色转成
-  // user 角色发给模型，所以规则照常被模型看到。按 customType 去重，避免同一轮多步重复注入。
-  const RULE_PRE_STEP_TYPE = "quick-reply-rule";
+  /** 注入用的自定义消息类型。宿主会把它盖上应用命名空间前缀，这里只写短名。 */
+  const RULE_CUSTOM_TYPE = "quick-reply-rule";
 
-  await sdk.hooks.onDecision("agent/pre-step", async (invocation) => {
-    const messages = Array.isArray(invocation?.messages) ? invocation.messages : null;
-    if (!messages) return undefined;
-    if (messages.some((m) => m && m.role === "custom" && m.customType === RULE_PRE_STEP_TYPE)) return undefined;
+  /**
+   * 已经注入过规则的会话。键是「形态 + 会话标识」，会话标识优先 sessionId，退回 sessionPath。
+   *
+   * 为什么是「每个会话一次」而不是「每轮一次」：before-start 注入的 message 会被宿主落盘成
+   * 会话里的一条 custom_message（实测：会话 jsonl 里能查到这条条目，customType 不会被加前缀），
+   * 落盘之后它就在历史里了，这一会话的后续每一轮、每一步都能看到它，再注入就是重复。
+   * 按轮注入的话，长会话里会攒下几十份同样的规则，白占上下文。
+   *
+   * 同时它也顺手把「同一轮被重试」这类重入挡住了：本会话已经标记过，就不再给第二条。
+   *
+   * 键里带形态是防守性写法：设置页改形态要重建 App 才会生效，而重建必然重跑 apply、
+   * 闩锁本来就是空的，带不带形态都会重新注入。但万一以后改成热切形态，带形态的键
+   * 能保证新形态的规则一定补得进去，不用再想起这一层。
+   */
+  const injectedSessions = new Set();
+
+  /** 会话标识：优先 sessionId，退回 sessionPath。都拿不到就返回空串。 */
+  function sessionKeyOf(invocation) {
+    const session = invocation && typeof invocation === "object" ? invocation.session : null;
+    const id = session && typeof session.sessionId === "string" ? session.sessionId : "";
+    if (id) return `id:${id}`;
+    const path = session && typeof session.sessionPath === "string" ? session.sessionPath : "";
+    return path ? `path:${path}` : "";
+  }
+
+  /** 把某个会话的所有形态闩锁一起摘掉。 */
+  function forgetSession(invocation) {
+    const key = sessionKeyOf(invocation);
+    if (!key) return 0;
+    let cleared = 0;
+    for (const marked of [...injectedSessions]) {
+      if (marked.endsWith(key)) {
+        injectedSessions.delete(marked);
+        cleared += 1;
+      }
+    }
+    return cleared;
+  }
+
+  // 每个会话只注入一条，且只注入一次：不碰 systemPrompt，不会漂移缓存契约；
+  // 落盘后留在历史里，后面每一轮都在，不用重发。
+  await sdk.hooks.onDecision("agent/before-start", async (invocation) => {
+    const key = `${form}::${sessionKeyOf(invocation) || "unknown-session"}`;
+    if (injectedSessions.has(key)) return undefined;
+    injectedSessions.add(key);
+    await sdk.logger.info(`answer-choice: 本会话首次注入规则 → ${key}`);
     return {
-      messages: [
-        ...messages,
-        { role: "custom", customType: RULE_PRE_STEP_TYPE, content: RULE_TEXT, display: false, timestamp: Date.now() },
-      ],
+      message: { customType: RULE_CUSTOM_TYPE, content: RULE_TEXT, display: false },
     };
+  });
+
+  // 压缩会把落盘的规则折进摘要，可内存里那条「已注入」的记号还在，于是这个会话后面
+  // 再也不注入 —— 规则就这么锛没声地丢了。压缩完成后把记号清掉，下一轮自然补一条。
+  //
+  // 这里用观察型事件而不是 session.beforeCompact 决策：那个词宿主自己已经有一个裁决者
+  // （compaction-guard），多个裁决者要求彼此的 order 两两不同，而 App 侧的 onDecision
+  // 根本没有 order 参数，注册会被宿主拒掉、整个 App 跟着 failed。观察事件不参与裁决，
+  // 没有这个冲突。
+  await sdk.hooks.on("session/compacted", async (event) => {
+    const cleared = forgetSession(event);
+    if (cleared > 0) {
+      await sdk.logger.info(`answer-choice: 压缩完成，清掉 ${cleared} 条注入记号，下一轮重新注入`);
+    }
   });
 
   await sdk.routes.register((app) => {
